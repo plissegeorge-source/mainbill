@@ -1,460 +1,551 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
 import json
-import bcrypt
+import random
+import secrets
 from datetime import datetime, timedelta
 from functools import wraps
-import secrets
-import random
+from typing import Any, Dict, Optional
 
-app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+import bcrypt
+from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
+
+app = FastAPI(title="MainBill")
+app.add_middleware(SessionMiddleware, secret_key=secrets.token_hex(32))
+templates = Jinja2Templates(directory="templates")
 
 
 # DB helpers
-def load_db():
+
+def load_db() -> Dict[str, Any]:
     try:
-        with open('db.json', 'r', encoding='utf-8') as f:
+        with open("db.json", "r", encoding="utf-8") as f:
             return json.load(f)
-    except:
-        return {'users': [], 'services': [], 'tickets': [], 'ticket_messages': [], 'cdn_requests': [],
-                'transactions': []}
+    except Exception:
+        return {
+            "users": [],
+            "services": [],
+            "tickets": [],
+            "ticket_messages": [],
+            "cdn_requests": [],
+            "transactions": [],
+        }
 
 
-def save_db(db):
-    with open('db.json', 'w', encoding='utf-8') as f:
+def save_db(db: Dict[str, Any]) -> None:
+    with open("db.json", "w", encoding="utf-8") as f:
         json.dump(db, f, indent=2, ensure_ascii=False)
 
 
-def load_config():
-    with open('config.json', 'r', encoding='utf-8') as f:
+def load_config() -> Dict[str, Any]:
+    with open("config.json", "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-# Auth decorator
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect('/login')
-        return f(*args, **kwargs)
-
-    return decorated
+# Auth helpers
 
 
-def admin_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect('/login')
-        db = load_db()
-        user = next((u for u in db['users'] if u['id'] == session['user_id']), None)
-        if not user or not user.get('is_admin'):
-            return redirect('/')
-        return f(*args, **kwargs)
+def get_current_user(request: Request) -> Dict[str, Any]:
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_302_FOUND, headers={"Location": "/login"})
 
-    return decorated
+    db = load_db()
+    user = next((u for u in db["users"] if u["id"] == user_id), None)
+    if not user:
+        request.session.clear()
+        raise HTTPException(status_code=status.HTTP_302_FOUND, headers={"Location": "/login"})
+    return user
+
+
+def require_admin(user: Dict[str, Any]) -> Dict[str, Any]:
+    if not user.get("is_admin"):
+        raise HTTPException(status_code=status.HTTP_302_FOUND, headers={"Location": "/"})
+    return user
+
+
+def get_admin_user(request: Request) -> Dict[str, Any]:
+    user = get_current_user(request)
+    return require_admin(user)
 
 
 # Name generator
-ADJ = ['azure', 'crimson', 'stellar', 'golden', 'silver', 'cosmic', 'mystic', 'noble', 'prime', 'royal', 'swift',
-       'vivid', 'quantum', 'bright', 'radiant']
-NOUN = ['falcon', 'phoenix', 'dragon', 'tiger', 'eagle', 'raven', 'wolf', 'bear', 'lion', 'hawk', 'leopard', 'panther',
-        'jaguar', 'lynx', 'cobra']
+
+ADJ = [
+    "azure",
+    "crimson",
+    "stellar",
+    "golden",
+    "silver",
+    "cosmic",
+    "mystic",
+    "noble",
+    "prime",
+    "royal",
+    "swift",
+    "vivid",
+    "quantum",
+    "bright",
+    "radiant",
+]
+NOUN = [
+    "falcon",
+    "phoenix",
+    "dragon",
+    "tiger",
+    "eagle",
+    "raven",
+    "wolf",
+    "bear",
+    "lion",
+    "hawk",
+    "leopard",
+    "panther",
+    "jaguar",
+    "lynx",
+    "cobra",
+]
 
 
-def gen_name():
+def gen_name() -> str:
     return f"{random.choice(ADJ)}-{random.choice(NOUN)}"
 
 
-# Routes
-@app.route('/')
-@login_required
-def index():
-    return render_template('dashboard.html')
+# Pages
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        db = load_db()
-        username = request.form['username']
-        password = request.form['password']
-
-        user = next((u for u in db['users'] if u['username'] == username), None)
-        if user and bcrypt.checkpw(password.encode(), user['password'].encode()):
-            session['user_id'] = user['id']
-            session['username'] = user['username']
-            session['is_admin'] = user.get('is_admin', False)
-            return redirect('/admin' if user.get('is_admin') else '/')
-        return render_template('login.html', error='Неверные данные')
-    return render_template('login.html')
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    try:
+        user = get_current_user(request)
+    except HTTPException as exc:
+        return RedirectResponse(url=exc.headers.get("Location", "/login"))
+    return templates.TemplateResponse(
+        "dashboard.html", {"request": request, "user": user, "is_admin": user.get("is_admin", False)}
+    )
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        db = load_db()
-        username = request.form['username']
-        password = request.form['password']
-
-        if any(u['username'] == username for u in db['users']):
-            return render_template('login.html', error='Пользователь существует', mode='register')
-
-        user_id = max([u['id'] for u in db['users']], default=0) + 1
-        db['users'].append({
-            'id': user_id,
-            'username': username,
-            'password': bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
-            'is_admin': False,
-            'balance': 50.0
-        })
-        save_db(db)
-        return redirect('/login')
-    return render_template('login.html', mode='register')
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "mode": "login"})
 
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/login')
+@app.post("/login")
+async def login(request: Request):
+    form = await request.form()
+    username = form.get("username", "")
+    password = form.get("password", "")
 
-
-@app.route('/admin')
-@admin_required
-def admin():
-    return render_template('admin.html')
-
-
-# API
-@app.route('/api/config')
-@login_required
-def api_config():
-    return jsonify(load_config())
-
-
-@app.route('/api/services', methods=['GET', 'POST'])
-@login_required
-def api_services():
     db = load_db()
+    user = next((u for u in db["users"] if u["username"] == username), None)
+    if user and bcrypt.checkpw(password.encode(), user["password"].encode()):
+        request.session["user_id"] = user["id"]
+        request.session["username"] = user["username"]
+        request.session["is_admin"] = user.get("is_admin", False)
+        target = "/admin" if user.get("is_admin") else "/"
+        return RedirectResponse(url=target, status_code=status.HTTP_302_FOUND)
 
-    if request.method == 'GET':
-        services = [s for s in db['services'] if s['owner_id'] == session['user_id']]
-        for s in services:
-            if s.get('expires_at'):
-                days_left = (datetime.fromisoformat(s['expires_at']) - datetime.now()).days
-                if days_left <= 0:
-                    s['status'] = 'expired'
-                elif days_left <= 3:
-                    s['status'] = 'expiring_soon'
-        save_db(db)
-        return jsonify(services)
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request, "mode": "login", "error": "Неверные данные"},
+        status_code=status.HTTP_401_UNAUTHORIZED,
+    )
 
-    data = request.json
 
-    # Списание баланса
-    user = next((u for u in db['users'] if u['id'] == session['user_id']), None)
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+@app.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "mode": "register"})
 
-    price_str = data.get('price', '€0')
-    price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
 
-    if user.get('balance', 0) < price:
-        return jsonify({'error': 'Insufficient balance'}), 400
+@app.post("/register")
+async def register(request: Request):
+    form = await request.form()
+    username = form.get("username", "")
+    password = form.get("password", "")
 
-    user['balance'] = user.get('balance', 0) - price
+    db = load_db()
+    if any(u["username"] == username for u in db["users"]):
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "mode": "register", "error": "Пользователь существует"},
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
-    # Транзакция
-    trans_id = max([t['id'] for t in db.get('transactions', [])], default=0) + 1
-    db.setdefault('transactions', []).append({
-        'id': trans_id,
-        'user_id': session['user_id'],
-        'amount': -price,
-        'description': f"Order {data.get('service_type', 'Service')}",
-        'created_at': datetime.now().isoformat()
-    })
-
-    service_id = max([s['id'] for s in db['services']], default=0) + 1
-    service = {
-        'id': service_id,
-        'name': gen_name(),
-        'owner_id': session['user_id'],
-        'status': 'pending',
-        'created_at': datetime.now().isoformat(),
-        **data
-    }
-    db['services'].append(service)
+    user_id = max([u["id"] for u in db["users"]], default=0) + 1
+    db["users"].append(
+        {
+            "id": user_id,
+            "username": username,
+            "password": bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
+            "is_admin": False,
+            "balance": 50.0,
+        }
+    )
     save_db(db)
-    return jsonify({'id': service_id, 'success': True})
+    return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
 
 
-@app.route('/api/services/<int:sid>', methods=['GET', 'DELETE'])
-@login_required
-def api_service(sid):
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin(request: Request):
+    try:
+        user = get_current_user(request)
+        require_admin(user)
+    except HTTPException as exc:
+        return RedirectResponse(url=exc.headers.get("Location", "/login"))
+    return templates.TemplateResponse("admin.html", {"request": request, "user": user})
+
+
+# API endpoints
+
+
+@app.get("/api/config")
+async def api_config(user: Dict[str, Any] = Depends(get_current_user)):
+    return JSONResponse(load_config())
+
+
+@app.api_route("/api/services", methods=["GET", "POST"])
+async def api_services(request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    service = next((s for s in db['services'] if s['id'] == sid and s['owner_id'] == session['user_id']), None)
+
+    if request.method == "GET":
+        services = [s for s in db["services"] if s["owner_id"] == user["id"]]
+        for svc in services:
+            if svc.get("expires_at"):
+                days_left = (datetime.fromisoformat(svc["expires_at"]) - datetime.now()).days
+                if days_left <= 0:
+                    svc["status"] = "expired"
+                elif days_left <= 3:
+                    svc["status"] = "expiring_soon"
+        save_db(db)
+        return JSONResponse(services)
+
+    data = await request.json()
+
+    balance_holder = next((u for u in db["users"] if u["id"] == user["id"]), None)
+    if not balance_holder:
+        return JSONResponse({"error": "User not found"}, status_code=status.HTTP_404_NOT_FOUND)
+
+    price_str = data.get("price", "€0")
+    price = float("".join(c for c in price_str if c.isdigit() or c == "."))
+
+    if balance_holder.get("balance", 0) < price:
+        return JSONResponse({"error": "Insufficient balance"}, status_code=status.HTTP_400_BAD_REQUEST)
+
+    balance_holder["balance"] = balance_holder.get("balance", 0) - price
+
+    trans_id = max([t["id"] for t in db.get("transactions", [])], default=0) + 1
+    db.setdefault("transactions", []).append(
+        {
+            "id": trans_id,
+            "user_id": user["id"],
+            "amount": -price,
+            "description": f"Order {data.get('service_type', 'Service')}",
+            "created_at": datetime.now().isoformat(),
+        }
+    )
+
+    service_id = max([s["id"] for s in db["services"]], default=0) + 1
+    service = {
+        "id": service_id,
+        "name": gen_name(),
+        "owner_id": user["id"],
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        **data,
+    }
+    db["services"].append(service)
+    save_db(db)
+    return JSONResponse({"id": service_id, "success": True})
+
+
+@app.api_route("/api/services/{sid}", methods=["GET", "DELETE"])
+async def api_service(sid: int, request: Request, user: Dict[str, Any] = Depends(get_current_user)):
+    db = load_db()
+    service = next((s for s in db["services"] if s["id"] == sid and s["owner_id"] == user["id"]), None)
 
     if not service:
-        return jsonify({'error': 'Not found'}), 404
+        return JSONResponse({"error": "Not found"}, status_code=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'DELETE':
-        db['services'] = [s for s in db['services'] if s['id'] != sid]
+    if request.method == "DELETE":
+        db["services"] = [s for s in db["services"] if s["id"] != sid]
         save_db(db)
-        return jsonify({'success': True})
+        return JSONResponse({"success": True})
 
-    return jsonify(service)
+    return JSONResponse(service)
 
 
-@app.route('/api/services/<int:sid>/rename', methods=['POST'])
-@login_required
-def api_rename(sid):
+@app.post("/api/services/{sid}/rename")
+async def api_rename(sid: int, request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    service = next((s for s in db['services'] if s['id'] == sid and s['owner_id'] == session['user_id']), None)
+    service = next((s for s in db["services"] if s["id"] == sid and s["owner_id"] == user["id"]), None)
     if service:
-        service['name'] = request.json['new_name']
+        data = await request.json()
+        service["name"] = data.get("new_name", service["name"])
         save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
-@app.route('/api/services/<int:sid>/request-renewal', methods=['POST'])
-@login_required
-def api_request_renewal(sid):
-    return jsonify({'success': True, 'message': 'Запрос отправлен'})
+@app.post("/api/services/{sid}/request-renewal")
+async def api_request_renewal(sid: int, user: Dict[str, Any] = Depends(get_current_user)):
+    return JSONResponse({"success": True, "message": "Запрос отправлен"})
 
 
-@app.route('/api/tickets', methods=['GET', 'POST'])
-@login_required
-def api_tickets():
+@app.api_route("/api/tickets", methods=["GET", "POST"])
+async def api_tickets(request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
 
-    if request.method == 'GET':
-        tickets = [t for t in db['tickets'] if t['user_id'] == session['user_id']]
-        return jsonify(tickets)
+    if request.method == "GET":
+        tickets = [t for t in db["tickets"] if t["user_id"] == user["id"]]
+        enriched = []
+        for ticket in tickets:
+            messages = [m for m in db["ticket_messages"] if m["ticket_id"] == ticket["id"]]
+            last_message = messages[-1]["message"] if messages else ""
+            enriched.append({**ticket, "last_message": last_message})
+        return JSONResponse(enriched)
 
-    data = request.json
-    tid = max([t['id'] for t in db['tickets']], default=0) + 1
+    data = await request.json()
+    tid = max([t["id"] for t in db["tickets"]], default=0) + 1
     ticket = {
-        'id': tid,
-        'user_id': session['user_id'],
-        'subject': data['subject'],
-        'priority': data.get('priority', 'medium'),
-        'status': 'open',
-        'created_at': datetime.now().isoformat()
+        "id": tid,
+        "user_id": user["id"],
+        "subject": data["subject"],
+        "priority": data.get("priority", "medium"),
+        "status": "open",
+        "created_at": datetime.now().isoformat(),
     }
-    db['tickets'].append(ticket)
+    db["tickets"].append(ticket)
 
-    # Первое сообщение
-    mid = max([m['id'] for m in db['ticket_messages']], default=0) + 1
+    mid = max([m["id"] for m in db["ticket_messages"]], default=0) + 1
     msg = {
-        'id': mid,
-        'ticket_id': tid,
-        'sender': session.get('username', 'user'),
-        'message': data.get('message', ''),
-        'created_at': datetime.now().isoformat()
+        "id": mid,
+        "ticket_id": tid,
+        "sender": request.session.get("username", "user"),
+        "message": data.get("message", ""),
+        "created_at": datetime.now().isoformat(),
     }
-    db['ticket_messages'].append(msg)
+    db["ticket_messages"].append(msg)
 
     save_db(db)
-    return jsonify({'id': tid, 'success': True})
+    return JSONResponse({"id": tid, "success": True})
 
 
-@app.route('/api/tickets/<int:tid>/messages', methods=['GET', 'POST'])
-@login_required
-def api_ticket_messages(tid):
+@app.api_route("/api/tickets/{tid}/messages", methods=["GET", "POST"])
+async def api_ticket_messages(tid: int, request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    ticket = next((t for t in db['tickets'] if t['id'] == tid and t['user_id'] == session['user_id']), None)
+    ticket = next((t for t in db["tickets"] if t["id"] == tid and t["user_id"] == user["id"]), None)
 
     if not ticket:
-        return jsonify({'error': 'Not found'}), 404
+        return JSONResponse({"error": "Not found"}, status_code=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'POST':
-        mid = max([m['id'] for m in db['ticket_messages']], default=0) + 1
+    if request.method == "POST":
+        data = await request.json()
+        mid = max([m["id"] for m in db["ticket_messages"]], default=0) + 1
         msg = {
-            'id': mid,
-            'ticket_id': tid,
-            'sender': session.get('username', 'user'),
-            'message': request.json['message'],
-            'created_at': datetime.now().isoformat()
+            "id": mid,
+            "ticket_id": tid,
+            "sender": request.session.get("username", "user"),
+            "message": data.get("message", ""),
+            "created_at": datetime.now().isoformat(),
         }
-        db['ticket_messages'].append(msg)
+        db["ticket_messages"].append(msg)
         save_db(db)
-        return jsonify({'success': True})
+        return JSONResponse({"success": True})
 
-    messages = [m for m in db['ticket_messages'] if m['ticket_id'] == tid]
-    return jsonify(messages)
+    messages = [m for m in db["ticket_messages"] if m["ticket_id"] == tid]
+    return JSONResponse(messages)
 
 
-@app.route('/api/balance')
-@login_required
-def api_balance():
+@app.get("/api/balance")
+async def api_balance(user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    user = next((u for u in db['users'] if u['id'] == session['user_id']), None)
-    return jsonify({'balance': user.get('balance', 0) if user else 0})
+    holder = next((u for u in db["users"] if u["id"] == user["id"]), None)
+    return JSONResponse({"balance": holder.get("balance", 0) if holder else 0})
 
 
-@app.route('/api/balance/add', methods=['POST'])
-@login_required
-def api_balance_add():
+@app.post("/api/balance/add")
+async def api_balance_add(request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    user = next((u for u in db['users'] if u['id'] == session['user_id']), None)
-    if user:
-        amount = float(request.json.get('amount', 0))
-        user['balance'] = user.get('balance', 0) + amount
+    holder = next((u for u in db["users"] if u["id"] == user["id"]), None)
+    if holder:
+        data = await request.json()
+        amount = float(data.get("amount", 0))
+        holder["balance"] = holder.get("balance", 0) + amount
         save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
-@app.route('/api/cdn-request', methods=['POST'])
-@login_required
-def api_cdn_request():
+@app.post("/api/cdn-request")
+async def api_cdn_request(request: Request, user: Dict[str, Any] = Depends(get_current_user)):
     db = load_db()
-    data = request.json
-    rid = max([r['id'] for r in db['cdn_requests']], default=0) + 1
+    data = await request.json()
+    rid = max([r["id"] for r in db["cdn_requests"]], default=0) + 1
     req = {
-        'id': rid,
-        'user_id': session['user_id'],
-        'status': 'pending',
-        'created_at': datetime.now().isoformat(),
-        **data
+        "id": rid,
+        "user_id": user["id"],
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        **data,
     }
-    db['cdn_requests'].append(req)
+    db["cdn_requests"].append(req)
     save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
 # Admin API
-@app.route('/api/admin/services', methods=['GET'])
-@admin_required
-def api_admin_services():
+
+
+@app.get("/api/admin/services")
+async def api_admin_services(user: Dict[str, Any] = Depends(get_admin_user)):
     db = load_db()
-    services = db['services']
+    services = db["services"]
     for s in services:
-        user = next((u for u in db['users'] if u['id'] == s['owner_id']), None)
-        s['owner_username'] = user['username'] if user else 'Unknown'
-    return jsonify(services)
+        owner = next((u for u in db["users"] if u["id"] == s["owner_id"]), None)
+        s["owner_username"] = owner["username"] if owner else "Unknown"
+    return JSONResponse(services)
 
 
-@app.route('/api/admin/services/<int:sid>/activate', methods=['POST'])
-@admin_required
-def api_admin_activate(sid):
+@app.post("/api/admin/services/{sid}/activate")
+async def api_admin_activate(sid: int, request: Request, user: Dict[str, Any] = Depends(get_admin_user)):
     db = load_db()
-    service = next((s for s in db['services'] if s['id'] == sid), None)
+    service = next((s for s in db["services"] if s["id"] == sid), None)
     if service:
-        service.update(request.json)
-        service['status'] = 'active'
-        service['expires_at'] = (datetime.now() + timedelta(days=30)).isoformat()
+        data = await request.json()
+        service.update(data)
+        service["status"] = "active"
+        service["expires_at"] = (datetime.now() + timedelta(days=30)).isoformat()
         save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
-@app.route('/api/admin/services/<int:sid>/renew', methods=['POST'])
-@admin_required
-def api_admin_renew(sid):
+@app.post("/api/admin/services/{sid}/renew")
+async def api_admin_renew(sid: int, user: Dict[str, Any] = Depends(get_admin_user)):
     db = load_db()
-    service = next((s for s in db['services'] if s['id'] == sid), None)
+    service = next((s for s in db["services"] if s["id"] == sid), None)
     if service:
-        service['status'] = 'active'
-        service['expires_at'] = (datetime.now() + timedelta(days=30)).isoformat()
+        service["status"] = "active"
+        service["expires_at"] = (datetime.now() + timedelta(days=30)).isoformat()
         save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
-@app.route('/api/admin/tickets')
-@admin_required
-def api_admin_tickets():
+@app.get("/api/admin/tickets")
+async def api_admin_tickets(user: Dict[str, Any] = Depends(get_admin_user)):
     db = load_db()
-    tickets = db['tickets']
+    tickets = db["tickets"]
+    enriched = []
     for t in tickets:
-        user = next((u for u in db['users'] if u['id'] == t['user_id']), None)
-        t['username'] = user['username'] if user else 'Unknown'
-    return jsonify(tickets)
+        owner = next((u for u in db["users"] if u["id"] == t["user_id"]), None)
+        messages = [m for m in db["ticket_messages"] if m["ticket_id"] == t["id"]]
+        last_message = messages[-1]["message"] if messages else ""
+        enriched.append({**t, "username": owner["username"] if owner else "Unknown", "last_message": last_message})
+    return JSONResponse(enriched)
 
 
-@app.route('/api/admin/tickets/<int:tid>/messages', methods=['GET', 'POST'])
-@admin_required
-def api_admin_ticket_messages(tid):
+@app.api_route("/api/admin/tickets/{tid}/messages", methods=["GET", "POST"])
+async def api_admin_ticket_messages(
+    tid: int, request: Request, user: Dict[str, Any] = Depends(get_admin_user)
+):
     db = load_db()
 
-    if request.method == 'POST':
-        mid = max([m['id'] for m in db['ticket_messages']], default=0) + 1
+    if request.method == "POST":
+        data = await request.json()
+        mid = max([m["id"] for m in db["ticket_messages"]], default=0) + 1
         msg = {
-            'id': mid,
-            'ticket_id': tid,
-            'sender': 'admin',
-            'message': request.json['message'],
-            'created_at': datetime.now().isoformat()
+            "id": mid,
+            "ticket_id": tid,
+            "sender": "admin",
+            "message": data.get("message", ""),
+            "created_at": datetime.now().isoformat(),
         }
-        db['ticket_messages'].append(msg)
+        db["ticket_messages"].append(msg)
         save_db(db)
-        return jsonify({'success': True})
+        return JSONResponse({"success": True})
 
-    messages = [m for m in db['ticket_messages'] if m['ticket_id'] == tid]
-    return jsonify(messages)
-
-
-@app.route('/api/admin/cdn-requests')
-@admin_required
-def api_admin_cdn():
-    return jsonify(load_db()['cdn_requests'])
+    messages = [m for m in db["ticket_messages"] if m["ticket_id"] == tid]
+    return JSONResponse(messages)
 
 
-@app.route('/api/admin/cdn-requests/<int:rid>/activate', methods=['POST'])
-@admin_required
-def api_admin_cdn_activate(rid):
+@app.get("/api/admin/cdn-requests")
+async def api_admin_cdn(user: Dict[str, Any] = Depends(get_admin_user)):
+    return JSONResponse(load_db()["cdn_requests"])
+
+
+@app.post("/api/admin/cdn-requests/{rid}/activate")
+async def api_admin_cdn_activate(
+    rid: int, user: Dict[str, Any] = Depends(get_admin_user)
+):
     db = load_db()
-    cdn_req = next((r for r in db['cdn_requests'] if r['id'] == rid), None)
+    cdn_req = next((r for r in db["cdn_requests"] if r["id"] == rid), None)
     if cdn_req:
-        cdn_req['status'] = 'active'
+        cdn_req["status"] = "active"
 
-        # Создать тикет
-        tid = max([t['id'] for t in db['tickets']], default=0) + 1
+        tid = max([t["id"] for t in db["tickets"]], default=0) + 1
         ticket = {
-            'id': tid,
-            'user_id': cdn_req['user_id'],
-            'subject': f"CDN активирован: {cdn_req['website_url']}",
-            'priority': 'high',
-            'status': 'open',
-            'created_at': datetime.now().isoformat()
+            "id": tid,
+            "user_id": cdn_req["user_id"],
+            "subject": f"CDN активирован: {cdn_req['website_url']}",
+            "priority": "high",
+            "status": "open",
+            "created_at": datetime.now().isoformat(),
         }
-        db['tickets'].append(ticket)
+        db["tickets"].append(ticket)
 
-        # Первое сообщение от админа
-        mid = max([m['id'] for m in db['ticket_messages']], default=0) + 1
+        mid = max([m["id"] for m in db["ticket_messages"]], default=0) + 1
         msg = {
-            'id': mid,
-            'ticket_id': tid,
-            'sender': 'admin',
-            'message': f"Здравствуйте! Ваш CDN запрос одобрен.\n\nДетали:\n• Сайт: {cdn_req['website_url']}\n• Трафик: {cdn_req['monthly_traffic']}\n• Скорость: {cdn_req['required_speed']}\n\nСвяжемся для настройки.",
-            'created_at': datetime.now().isoformat()
+            "id": mid,
+            "ticket_id": tid,
+            "sender": "admin",
+            "message": (
+                "Здравствуйте! Ваш CDN запрос одобрен.\n\n"
+                f"Детали:\n• Сайт: {cdn_req['website_url']}\n"
+                f"• Трафик: {cdn_req['monthly_traffic']}\n"
+                f"• Скорость: {cdn_req['required_speed']}\n\n"
+                "Свяжемся для настройки."
+            ),
+            "created_at": datetime.now().isoformat(),
         }
-        db['ticket_messages'].append(msg)
+        db["ticket_messages"].append(msg)
 
         save_db(db)
-    return jsonify({'success': True})
+    return JSONResponse({"success": True})
 
 
 # Init DB
-def init_db():
+
+def init_db() -> None:
     db = load_db()
-    if not db['users']:
-        db['users'].append({
-            'id': 1,
-            'username': 'admin',
-            'password': bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode(),
-            'is_admin': True,
-            'balance': 999999.0
-        })
-        db['users'].append({
-            'id': 2,
-            'username': 'testuser',
-            'password': bcrypt.hashpw('testpassword'.encode(), bcrypt.gensalt()).decode(),
-            'is_admin': False,
-            'balance': 50.0
-        })
+    if not db["users"]:
+        db["users"].append(
+            {
+                "id": 1,
+                "username": "admin",
+                "password": bcrypt.hashpw("admin".encode(), bcrypt.gensalt()).decode(),
+                "is_admin": True,
+                "balance": 999999.0,
+            }
+        )
+        db["users"].append(
+            {
+                "id": 2,
+                "username": "testuser",
+                "password": bcrypt.hashpw("testpassword".encode(), bcrypt.gensalt()).decode(),
+                "is_admin": False,
+                "balance": 50.0,
+            }
+        )
         save_db(db)
-        print('✓ DB initialized: admin/admin, testuser/testpassword')
+        print("✓ DB initialized: admin/admin, testuser/testpassword")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import uvicorn
+
     init_db()
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
