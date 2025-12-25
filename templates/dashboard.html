@@ -1,530 +1,509 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid">
-    <nav class="navbar navbar-dark glass m-3">
+<div class="container-fluid" style="position: relative; z-index: 1;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-custom m-3 px-4 py-3">
         <div class="container-fluid">
-            <span class="navbar-brand"><i class="fas fa-cloud"></i> Cloud Hosting</span>
-            <div class="d-flex gap-2 flex-wrap align-items-center">
-                <span class="text-white"><i class="fas fa-wallet"></i> <b id="balance">€0.00</b></span>
-                <button class="btn btn-sm btn-success" onclick="openTopUpModal()"><i class="fas fa-plus"></i> Пополнить</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('services')"><i class="fas fa-server"></i> Мои услуги</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('vps')"><i class="fas fa-desktop"></i> VPS</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('dedicated')"><i class="fas fa-hdd"></i> Dedicated</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('vpn')"><i class="fas fa-shield-alt"></i> VPN</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('cdn')"><i class="fas fa-network-wired"></i> CDN</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('vdesktop')"><i class="fas fa-desktop"></i> VDesktop</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('s3')"><i class="fas fa-database"></i> S3</button>
-                <button class="btn btn-sm btn-outline-light" onclick="loadSection('support')"><i class="fas fa-life-ring"></i> Поддержка</button>
-                <a href="/logout" class="btn btn-sm btn-outline-light"><i class="fas fa-sign-out-alt"></i></a>
+            <span class="navbar-brand fs-4 fw-bold">
+                <i class="fas fa-cloud me-2"></i>Cloud Hosting Pro
+            </span>
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+                <!-- Balance -->
+                <div class="glass px-4 py-2" style="border-radius: 50px;">
+                    <i class="fas fa-wallet me-2"></i>
+                    <span class="fw-bold" id="balance">€0.00</span>
+                </div>
+                <!-- Top Up -->
+                <button class="btn btn-gradient btn-sm" onclick="openTopUpModal()">
+                    <i class="fas fa-plus me-1"></i>Пополнить
+                </button>
+                <!-- Notifications -->
+                <div class="position-relative">
+                    <button class="btn btn-glass btn-sm" onclick="loadNotifications()" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notifBadge" style="display: none;">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end glass-dark p-3" style="width: 350px; max-height: 400px; overflow-y: auto;" id="notificationsList">
+                        <p class="text-center text-white-50">Нет уведомлений</p>
+                    </div>
+                </div>
+                <!-- Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-glass btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end glass-dark">
+                        <a class="dropdown-item text-white" href="#" onclick="loadSection('services')">
+                            <i class="fas fa-server me-2"></i>Мои услуги
+                        </a>
+                        <a class="dropdown-item text-white" href="#" onclick="loadSection('transactions')">
+                            <i class="fas fa-receipt me-2"></i>Транзакции
+                        </a>
+                        <a class="dropdown-item text-white" href="#" onclick="loadSection('tickets')">
+                            <i class="fas fa-ticket-alt me-2"></i>Тикеты
+                        </a>
+                        <div class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></div>
+                        <a class="dropdown-item text-white" href="#" onclick="loadSection('vps')">
+                            <i class="fas fa-desktop me-2"></i>Заказать VPS
+                        </a>
+                        <a class="dropdown-item text-white" href="#" onclick="loadSection('dedicated')">
+                            <i class="fas fa-hdd me-2"></i>Заказать Dedicated
+                        </a>
+                        <div class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></div>
+                        <a class="dropdown-item text-danger" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Выход
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div id="content" class="p-3"></div>
+    <!-- Main Content -->
+    <div id="content" class="px-3 pb-5"></div>
 </div>
 
-<!-- Modals -->
-<div class="modal fade" id="orderModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderModalTitle">Заказать сервер</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Live Chat Button -->
+<button class="chat-button" onclick="toggleChat()" id="chatButton">
+    <i class="fas fa-comments"></i>
+</button>
+
+<!-- Live Chat Window -->
+<div id="chatWindow" style="display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px; z-index: 1001;">
+    <div class="glass-dark h-100 d-flex flex-column" style="border-radius: 20px;">
+        <div class="p-3 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 text-white"><i class="fas fa-comments me-2"></i>Чат с поддержкой</h6>
+                <button class="btn btn-sm btn-glass" onclick="toggleChat()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h6>1. План</h6>
-                        <div id="planCategories" class="btn-group-vertical w-100 mb-2"></div>
-                        <div id="planList"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6>2. ОС</h6>
-                        <div id="osList" class="row g-2"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6>3. Опции</h6>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="premiumSupport">
-                            <label class="form-check-label" for="premiumSupport">Премиум поддержка (+€10)</label>
-                        </div>
-                        <div class="alert alert-info mt-3">
-                            <h4 id="totalPrice">€0</h4>
-                            <small id="setupFee"></small>
-                        </div>
-                        <button class="btn btn-primary w-100" onclick="submitOrder()" disabled id="submitOrderBtn">Заказать</button>
-                    </div>
-                </div>
+        </div>
+        <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto; max-height: 380px;"></div>
+        <div class="p-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+            <div class="input-group">
+                <input type="text" class="form-control" id="chatInput" placeholder="Введите сообщение..." onkeypress="if(event.key==='Enter')sendChatMessage()">
+                <button class="btn btn-gradient" onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="serviceModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Детали услуги</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="serviceDetails"></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="vpnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Заказать VPN</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label>Страна</label>
-                    <div id="vpnCountries"></div>
-                </div>
-                <div class="mb-3">
-                    <label>Протокол</label>
-                    <div id="vpnProtocols"></div>
-                </div>
-                <div class="alert alert-info">$20/мес</div>
-                <button class="btn btn-primary w-100" onclick="submitVPN()">Заказать</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="s3Modal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>S3 Storage</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="mb-2">Тип</label>
-                    <div id="s3Types"></div>
-                </div>
-                <div class="mb-3">
-                    <label>Размер: <span id="s3Size">100</span> GB</label>
-                    <input type="range" class="form-range" id="s3Slider" min="10" max="10000" value="100" step="10">
-                </div>
-                <div class="alert alert-info"><span id="s3Price">€1.00</span>/мес</div>
-                <button class="btn btn-primary w-100" onclick="submitS3()">Заказать</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="vdesktopModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>VDesktop</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="mb-2">ОС</label>
-                    <div id="vdesktopOS" class="row g-2"></div>
-                </div>
-                <div class="mb-3">
-                    <label class="mb-2">Тариф</label>
-                    <div id="vdesktopPlans"></div>
-                </div>
-                <div class="alert alert-info"><span id="vdesktopPrice">$5</span>/мес</div>
-                <button class="btn btn-primary w-100" onclick="submitVDesktop()">Заказать</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="cdnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>CDN запрос</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="cdnForm">
-                    <div class="row">
-                        <div class="col-6 mb-2"><input type="text" class="form-control" id="cdnFirstName" placeholder="Имя" required></div>
-                        <div class="col-6 mb-2"><input type="text" class="form-control" id="cdnLastName" placeholder="Фамилия" required></div>
-                    </div>
-                    <input type="tel" class="form-control mb-2" id="cdnPhone" placeholder="Телефон" required>
-                    <input type="email" class="form-control mb-2" id="cdnEmail" placeholder="Email" required>
-                    <input type="text" class="form-control mb-2" id="cdnCountry" placeholder="Страна" required>
-                    <input type="url" class="form-control mb-2" id="cdnUrl" placeholder="URL сайта" required>
-                    <textarea class="form-control mb-2" id="cdnDesc" placeholder="Описание" required></textarea>
-                    <input type="text" class="form-control mb-2" id="cdnTraffic" placeholder="Трафик/мес" required>
-                    <input type="text" class="form-control mb-2" id="cdnSpeed" placeholder="Скорость" required>
-                    <button type="submit" class="btn btn-primary w-100">Отправить</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="ticketModalTitle">Тикет</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="ticketMessages" style="max-height:300px;overflow-y:auto"></div>
-                <form id="ticketReplyForm" class="mt-3">
-                    <textarea class="form-control mb-2" id="ticketReply" required></textarea>
-                    <button type="submit" class="btn btn-primary">Ответить</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="topUpModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Пополнить баланс</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label>Выберите способ пополнения</label>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button class="btn btn-outline-primary w-100" onclick="topUp('crypto')">
-                                <i class="fab fa-bitcoin"></i> Криптовалюта
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-outline-primary w-100" onclick="topUp('card')">
-                                <i class="fas fa-credit-card"></i> Карта
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label>Сумма</label>
-                    <div class="btn-group w-100 mb-2" role="group">
-                        <button class="btn btn-outline-secondary" onclick="setTopUpAmount(10)">€10</button>
-                        <button class="btn btn-outline-secondary" onclick="setTopUpAmount(25)">€25</button>
-                        <button class="btn btn-outline-secondary" onclick="setTopUpAmount(50)">€50</button>
-                        <button class="btn btn-outline-secondary" onclick="setTopUpAmount(100)">€100</button>
-                    </div>
-                    <input type="number" class="form-control" id="topUpAmount" placeholder="Или введите сумму" min="1">
-                </div>
-                <div class="alert alert-info">
-                    <small>Демо режим: пополнение происходит автоматически</small>
-                </div>
-                <button class="btn btn-success w-100" onclick="submitTopUp()">Пополнить</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Modals will be added dynamically -->
+<div id="modalsContainer"></div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-let config, selectedPlan, selectedOS, selectedVPNCountry, selectedVPNProtocol, selectedS3Type='cold', selectedVDesktopOS, selectedVDesktopPause, currentTicketId, selectedPaymentMethod='crypto';
+let config, chatSocket, currentSection = 'services';
 
-fetch('/api/config').then(r=>r.json()).then(c=>{config=c;loadSection('services')});
-loadBalance();
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadConfig();
+    loadBalance();
+    loadNotificationsCount();
+    loadSection('services');
+});
 
-function loadBalance(){
-    fetch('/api/balance').then(r=>r.json()).then(d=>document.getElementById('balance').textContent='€'+d.balance.toFixed(2));
+// Config
+async function loadConfig() {
+    const res = await fetch('/api/config');
+    config = await res.json();
 }
 
-function openTopUpModal(){
-    const modal = new bootstrap.Modal(document.getElementById('topUpModal'));
-    modal.show();
-
-    setTimeout(()=>{
-        // Payment methods с прямыми стилями
-        document.querySelectorAll('.payment-method').forEach(el=>{
-            el.onclick = function(){
-                document.querySelectorAll('.payment-method').forEach(e=>{
-                    e.style.background='white';
-                    e.style.color='black';
-                    e.style.borderColor='#dee2e6';
-                    e.style.transform='scale(1)';
-                    e.style.boxShadow='none';
-                });
-                this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                this.style.color='white';
-                this.style.borderColor='#667eea';
-                this.style.transform='scale(1.1)';
-                this.style.boxShadow='0 0 25px rgba(102,126,234,0.7)';
-                selectedPaymentMethod = this.dataset.method;
-            };
-        });
-
-        // Amount buttons
-        document.querySelectorAll('.btn-group button').forEach(btn=>{
-            btn.onclick = function(){
-                document.getElementById('topUpAmount').value = this.dataset.amount;
-                document.querySelectorAll('.btn-group button').forEach(e=>{
-                    e.style.background='';
-                    e.style.color='';
-                    e.style.borderColor='';
-                });
-                this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                this.style.color='white';
-                this.style.borderColor='#667eea';
-            };
-        });
-
-        document.getElementById('createPaymentBtn').onclick = ()=>{
-            const amount=parseFloat(document.getElementById('topUpAmount').value);
-            if(!amount||amount<=0){alert('Введите сумму');return;}
-            fetch('/api/payment/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method:selectedPaymentMethod,amount})})
-            .then(r=>r.json())
-            .then(data=>{
-                if(data.success){
-                    bootstrap.Modal.getInstance(document.getElementById('topUpModal')).hide();
-                    window.open(data.payment_url,'_blank');
-                    alert('Ссылка открыта');
-                    setInterval(loadBalance,5000);
-                }
-            });
-        };
-
-        document.querySelector('[data-method="crypto"]').click();
-    }, 100);
+// Balance
+async function loadBalance() {
+    const res = await fetch('/api/balance');
+    const data = await res.json();
+    document.getElementById('balance').textContent = formatCurrency(data.balance);
 }
 
-function loadSection(sec){
+// Notifications
+async function loadNotificationsCount() {
+    const res = await fetch('/api/notifications?unread_only=true');
+    const notifs = await res.json();
+    const badge = document.getElementById('notifBadge');
+    if (notifs.length > 0) {
+        badge.textContent = notifs.length;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function loadNotifications() {
+    const res = await fetch('/api/notifications');
+    const notifs = await res.json();
+    const list = document.getElementById('notificationsList');
+
+    if (notifs.length === 0) {
+        list.innerHTML = '<p class="text-center text-white-50 mb-0">Нет уведомлений</p>';
+        return;
+    }
+
+    list.innerHTML = notifs.map(n => `
+        <div class="alert alert-${n.type} mb-2" style="cursor: pointer;" onclick="markNotificationRead(${n.id})">
+            <div class="d-flex justify-content-between">
+                <strong>${n.title}</strong>
+                ${!n.is_read ? '<span class="badge bg-danger">NEW</span>' : ''}
+            </div>
+            <small>${n.message}</small>
+            <div class="small text-muted mt-1">${formatDate(n.created_at)}</div>
+        </div>
+    `).join('');
+}
+
+async function markNotificationRead(id) {
+    await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+    loadNotifications();
+    loadNotificationsCount();
+}
+
+// Sections
+function loadSection(section) {
+    currentSection = section;
     const content = document.getElementById('content');
-    if(sec==='services') loadServices();
-    else if(sec==='vps') content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openOrderModal(\'vps\')"><i class="fas fa-plus"></i> Новый VPS</button></div>';
-    else if(sec==='dedicated') content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openOrderModal(\'dedicated\')"><i class="fas fa-plus"></i> Новый Dedicated</button></div>';
-    else if(sec==='vpn') {content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openVPNModal()">Новый VPN</button></div>';}
-    else if(sec==='cdn') {content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openCDNModal()">CDN запрос</button></div>';}
-    else if(sec==='vdesktop') {content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openVDesktopModal()">Новый VDesktop</button></div>';}
-    else if(sec==='s3') {content.innerHTML='<div class="glass p-4"><button class="btn btn-light" onclick="openS3Modal()">Новый S3</button></div>';}
-    else if(sec==='support') loadTickets();
+
+    if (section === 'services') loadServices();
+    else if (section === 'transactions') loadTransactions();
+    else if (section === 'tickets') loadTickets();
+    else if (section === 'vps' || section === 'dedicated') showOrderSection(section);
 }
 
-function loadServices(){
-    fetch('/api/services').then(r=>r.json()).then(services=>{
-        const html = services.map(s=>`
-            <div class="col-md-4 mb-3">
-                <div class="card service-card" onclick="viewService(${s.id})">
-                    <div class="card-body">
-                        <h5 class="card-title">${s.name}</h5>
-                        <p class="card-text text-muted">${s.service_type} ${s.plan||''}</p>
-                        <span class="badge status-${s.status}">${getStatus(s.status)}</span>
-                        <p class="mt-2">${s.price}</p>
+// Services
+async function loadServices() {
+    showLoading();
+    const res = await fetch('/api/services');
+    const services = await res.json();
+    hideLoading();
+
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="glass p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-white mb-0"><i class="fas fa-server me-2"></i>Мои услуги</h3>
+                <div class="btn-group">
+                    <button class="btn btn-gradient btn-sm" onclick="loadSection('vps')">
+                        <i class="fas fa-plus me-1"></i>VPS
+                    </button>
+                    <button class="btn btn-gradient btn-sm" onclick="loadSection('dedicated')">
+                        <i class="fas fa-plus me-1"></i>Dedicated
+                    </button>
+                </div>
+            </div>
+            <div class="row g-4">
+                ${services.length > 0 ? services.map(s => `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card glass-dark service-card h-100" onclick="viewService(${s.id})">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title text-white mb-0">${s.name}</h5>
+                                    <span class="status-${s.status}">${getStatus(s.status)}</span>
+                                </div>
+                                <p class="text-white-50 mb-2">
+                                    <i class="fas fa-server me-2"></i>${s.service_type} ${s.plan || ''}
+                                </p>
+                                ${s.cpu ? `<p class="text-white-50 small mb-1"><i class="fas fa-microchip me-2"></i>${s.cpu}</p>` : ''}
+                                ${s.ram ? `<p class="text-white-50 small mb-1"><i class="fas fa-memory me-2"></i>${s.ram}</p>` : ''}
+                                <div class="mt-3 pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-white fw-bold">${s.price}</span>
+                                        <span class="text-white-50 small">${s.datacenter || ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<div class="col-12"><p class="text-white text-center">Нет услуг</p></div>'}
+            </div>
+        </div>
+    `;
+}
+
+function getStatus(status) {
+    const map = {
+        'pending': 'Активация',
+        'active': 'Активна',
+        'expiring_soon': 'Истекает',
+        'expired': 'Истекла'
+    };
+    return map[status] || status;
+}
+
+// Transactions
+async function loadTransactions() {
+    showLoading();
+    const res = await fetch('/api/transactions');
+    const transactions = await res.json();
+    hideLoading();
+
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="glass p-4">
+            <h3 class="text-white mb-4"><i class="fas fa-receipt me-2"></i>История транзакций</h3>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Описание</th>
+                            <th class="text-end">Сумма</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${transactions.map(t => `
+                            <tr>
+                                <td>${formatDate(t.created_at)}</td>
+                                <td>${t.description}</td>
+                                <td class="text-end ${t.amount > 0 ? 'text-success' : 'text-danger'}">
+                                    ${t.amount > 0 ? '+' : ''}${formatCurrency(t.amount)}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+// Tickets
+async function loadTickets() {
+    showLoading();
+    const res = await fetch('/api/tickets');
+    const tickets = await res.json();
+    hideLoading();
+
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="glass p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-white mb-0"><i class="fas fa-ticket-alt me-2"></i>Тикеты</h3>
+                <button class="btn btn-gradient" onclick="showCreateTicket()">
+                    <i class="fas fa-plus me-1"></i>Создать тикет
+                </button>
+            </div>
+            <div class="row g-3">
+                ${tickets.map(t => `
+                    <div class="col-12">
+                        <div class="card glass-dark" style="cursor: pointer;" onclick="openTicket(${t.id})">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="text-white mb-2">${t.subject}</h6>
+                                        <div class="d-flex gap-2">
+                                            <span class="badge priority-${t.priority}">${t.priority.toUpperCase()}</span>
+                                            <span class="badge category-${t.category}">${t.category}</span>
+                                            <span class="badge ${t.status === 'open' ? 'bg-success' : 'bg-secondary'}">${t.status}</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-white-50">${formatDate(t.created_at)}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function showCreateTicket() {
+    const html = `
+        <div class="modal fade" id="createTicketModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Создать тикет</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="ticketForm">
+                            <div class="mb-3">
+                                <label class="form-label text-white">Категория</label>
+                                <select class="form-select" id="ticketCategory">
+                                    <option value="general">Общий вопрос</option>
+                                    <option value="technical">Техническая проблема</option>
+                                    <option value="billing">Биллинг</option>
+                                    <option value="sales">Продажи</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-white">Приоритет</label>
+                                <select class="form-select" id="ticketPriority">
+                                    <option value="low">Низкий</option>
+                                    <option value="medium" selected>Средний</option>
+                                    <option value="high">Высокий</option>
+                                    <option value="urgent">Срочный</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-white">Тема</label>
+                                <input type="text" class="form-control" id="ticketSubject" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-white">Сообщение</label>
+                                <textarea class="form-control" id="ticketMessage" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-gradient w-100">Создать</button>
+                        </form>
                     </div>
                 </div>
             </div>
-        `).join('');
-        document.getElementById('content').innerHTML=`<div class="glass p-4"><h3 class="text-white mb-3">Мои услуги</h3><div class="row">${html||'<p class="text-white">Нет услуг</p>'}</div></div>`;
-    });
-}
+        </div>
+    `;
+    document.getElementById('modalsContainer').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('createTicketModal'));
+    modal.show();
 
-function getStatus(s){
-    return {pending:'Активация',active:'Активна',expiring_soon:'Скоро истечет',expired:'Истекла'}[s]||s;
-}
-
-function viewService(id){
-    fetch(`/api/services/${id}`).then(r=>r.json()).then(s=>{
-        let details=`<div class="mb-3"><input type="text" class="form-control" id="svcName" value="${s.name}"></div>`;
-
-        if(s.service_type==='VPS'||s.service_type==='Dedicated'||s.service_type==='DEDICATED'){
-            details+=`<p><b>CPU:</b> ${s.cpu||'N/A'}<br><b>RAM:</b> ${s.ram||'N/A'}<br><b>Диск:</b> ${s.disk||'N/A'}<br><b>Регион:</b> ${s.region||'N/A'}</p>`;
-            if(s.status==='active'){
-                if(s.ip) details+=`<div class="alert alert-success"><b>IP:</b> ${s.ip}<br><b>Login:</b> ${s.login||'root'}<br><b>Password:</b> ${s.password||'N/A'}</div>`;
-                else details+=`<div class="alert alert-warning">Ожидание активации админом</div>`;
-            }
-        } else if(s.service_type==='VPN'){
-            details+=`<p><b>Страна:</b> ${s.vpn_country||'N/A'}<br><b>Протокол:</b> ${s.vpn_protocol||'N/A'}</p>`;
-            if(s.vpn_key) details+=`<div class="alert alert-success"><b>Ключ:</b><textarea class="form-control mt-2" readonly rows="4">${s.vpn_key}</textarea></div>`;
-        } else if(s.service_type==='S3'){
-            details+=`<p><b>Тип:</b> ${s.s3_type==='cold'?'Холодное':'Горячее'}<br><b>Размер:</b> ${s.s3_size||0} GB</p>`;
-            if(s.status==='active' && s.s3_endpoint){
-                details+=`<div class="alert alert-success"><b>Endpoint:</b> ${s.s3_endpoint}<br><b>Access Key:</b> ${s.s3_access_key||'N/A'}<br><b>Secret Key:</b> ${s.s3_secret_key||'N/A'}</div>`;
-            }
-        } else if(s.service_type==='VDesktop'||s.service_type==='VDESKTOP'){
-            details+=`<p><b>ОС:</b> ${s.os||'N/A'}<br><b>Тариф:</b> ${s.vdesktop_pause?'С паузой':'Всегда активен'}</p>`;
-            if(s.status==='active'){
-                if(s.vdesktop_ip||s.ip) details+=`<div class="alert alert-success"><b>IP:</b> ${s.vdesktop_ip||s.ip||'N/A'}<br><b>Login:</b> ${s.login||'root'}<br><b>Password:</b> ${s.password||'N/A'}</div>`;
-            }
+    document.getElementById('ticketForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/tickets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                category: document.getElementById('ticketCategory').value,
+                priority: document.getElementById('ticketPriority').value,
+                subject: document.getElementById('ticketSubject').value,
+                message: document.getElementById('ticketMessage').value
+            })
+        });
+        if (res.ok) {
+            modal.hide();
+            showToast('Успех', 'Тикет создан', 'success');
+            loadTickets();
         }
+    };
+}
 
-        details+=`<button class="btn btn-sm btn-primary me-2" onclick="renameService(${id})">Переименовать</button>`;
-        details+=`<button class="btn btn-sm btn-danger" onclick="deleteService(${id})">Удалить</button>`;
-        document.getElementById('serviceDetails').innerHTML=details;
-        new bootstrap.Modal(document.getElementById('serviceModal')).show();
+// Top Up Modal
+function openTopUpModal() {
+    const html = `
+        <div class="modal fade" id="topUpModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Пополнить баланс</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label text-white">Сумма</label>
+                            <div class="btn-group w-100 mb-2">
+                                <button class="btn btn-glass" onclick="document.getElementById('topUpAmount').value=10">€10</button>
+                                <button class="btn btn-glass" onclick="document.getElementById('topUpAmount').value=25">€25</button>
+                                <button class="btn btn-glass" onclick="document.getElementById('topUpAmount').value=50">€50</button>
+                                <button class="btn btn-glass" onclick="document.getElementById('topUpAmount').value=100">€100</button>
+                            </div>
+                            <input type="number" class="form-control" id="topUpAmount" min="1" placeholder="Или введите сумму">
+                        </div>
+                        <div class="alert alert-info">
+                            <small>Демо режим: пополнение происходит автоматически</small>
+                        </div>
+                        <button class="btn btn-gradient w-100" onclick="submitTopUp()">Пополнить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('modalsContainer').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('topUpModal'));
+    modal.show();
+}
+
+async function submitTopUp() {
+    const amount = parseFloat(document.getElementById('topUpAmount').value);
+    if (!amount || amount <= 0) {
+        showToast('Ошибка', 'Введите сумму', 'error');
+        return;
+    }
+    const res = await fetch('/api/balance/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
     });
+    if (res.ok) {
+        bootstrap.Modal.getInstance(document.getElementById('topUpModal')).hide();
+        showToast('Успех', `Баланс пополнен на €${amount.toFixed(2)}`, 'success');
+        loadBalance();
+        loadNotificationsCount();
+    }
 }
 
-function renameService(id){
-    const name=document.getElementById('svcName').value;
-    fetch(`/api/services/${id}/rename`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_name:name})}).then(()=>{bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();loadServices();});
+// Live Chat
+function toggleChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    const chatButton = document.getElementById('chatButton');
+
+    if (chatWindow.style.display === 'none') {
+        chatWindow.style.display = 'block';
+        chatButton.innerHTML = '<i class="fas fa-times"></i>';
+        if (!chatSocket) initChat();
+    } else {
+        chatWindow.style.display = 'none';
+        chatButton.innerHTML = '<i class="fas fa-comments"></i>';
+    }
 }
 
-function deleteService(id){
-    if(confirm('Удалить?')) fetch(`/api/services/${id}`,{method:'DELETE'}).then(()=>{bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();loadServices();});
+function initChat() {
+    // WebSocket connection would go here
+    // For demo, show welcome message
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = `
+        <div class="text-center text-white-50 mb-3">
+            <i class="fas fa-comments fa-3x mb-2"></i>
+            <p>Здравствуйте! Чем могу помочь?</p>
+        </div>
+    `;
 }
 
-function openOrderModal(type){
-    document.getElementById('orderModalTitle').textContent=type==='vps'?'Заказать VPS':'Заказать Dedicated';
-    const cats=type==='vps'?[{k:'promo',l:'PROMO'},{k:'hicpu',l:'HICPU'},{k:'heavy',l:'HEAVY'},{k:'storage',l:'STORAGE'}]:[{k:'ded_1gbit_germany',l:'1Gbit 🇩🇪'},{k:'ded_speed_finland',l:'SPEED 🇫🇮'}];
-    document.getElementById('planCategories').innerHTML=cats.map(c=>`<button class="btn btn-sm btn-outline-primary" onclick="loadPlans('${type}','${c.k}')">${c.l}</button>`).join('');
-    document.getElementById('osList').innerHTML=config.operating_systems.map((o,i)=>`<div class="col-4"><div class="card text-center selectable" onclick="selectOS(${i})"><img src="${o.image}" class="card-img-top" style="height:60px;object-fit:contain"><div class="card-body p-2"><small>${o.name}</small></div></div></div>`).join('');
-    new bootstrap.Modal(document.getElementById('orderModal')).show();
-    loadPlans(type,cats[0].k);
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML += `
+        <div class="mb-2 text-end">
+            <div class="d-inline-block p-2 rounded" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); max-width: 80%;">
+                ${message}
+            </div>
+        </div>
+    `;
+    input.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Simulate admin response
+    setTimeout(() => {
+        chatMessages.innerHTML += `
+            <div class="mb-2">
+                <div class="d-inline-block p-2 rounded bg-secondary text-white" style="max-width: 80%;">
+                    Спасибо за сообщение! Оператор скоро ответит.
+                </div>
+            </div>
+        `;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000);
 }
 
-function loadPlans(type,cat){
-    const plans=(type==='vps'?config.vps:config.dedicated)[cat]||[];
-    document.getElementById('planList').innerHTML=plans.map((p,i)=>`<div class="card mb-2 selectable" onclick="selectPlan(${i},'${type}','${cat}')"><div class="card-body p-2"><small><b>${p.plan||p.cpu}</b><br>${p.cpu}<br>${p.ram} • ${p.disk}<br><b>${p.price}</b></small></div></div>`).join('');
-    window.currentType=type;window.currentCat=cat;
+// Order sections (simplified)
+function showOrderSection(type) {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="glass p-4">
+            <h3 class="text-white mb-4">Заказать ${type.toUpperCase()}</h3>
+            <p class="text-white-50">Функционал заказа будет доступен в полной версии.</p>
+            <button class="btn btn-gradient" onclick="loadSection('services')">Вернуться к услугам</button>
+        </div>
+    `;
 }
 
-function selectPlan(i,type,cat){
-    document.querySelectorAll('#planList .selectable').forEach(e=>e.classList.remove('selected'));
-    document.querySelectorAll('#planList .selectable')[i].classList.add('selected');
-    selectedPlan=(type==='vps'?config.vps:config.dedicated)[cat][i];
-    updatePrice();
+function viewService(id) {
+    // Service details modal
+    showToast('Info', 'Просмотр деталей услуги #' + id, 'info');
 }
-
-function selectOS(i){
-    document.querySelectorAll('#osList .selectable').forEach(e=>e.classList.remove('selected'));
-    document.querySelectorAll('#osList .selectable')[i].classList.add('selected');
-    selectedOS=config.operating_systems[i];
-    document.getElementById('submitOrderBtn').disabled=!selectedPlan||!selectedOS;
-}
-
-function updatePrice(){
-    if(!selectedPlan){document.getElementById('totalPrice').textContent='€0';return;}
-    const base=parseFloat(selectedPlan.price.replace(/[^0-9.]/g,''))||0;
-    const premium=document.getElementById('premiumSupport').checked?10:0;
-    document.getElementById('totalPrice').textContent=`€${(base+premium).toFixed(2)}`;
-    document.getElementById('setupFee').textContent=selectedPlan.setup_fee?`+${selectedPlan.setup_fee} setup`:'';
-}
-
-document.getElementById('premiumSupport').addEventListener('change',updatePrice);
-
-function submitOrder(){
-    if(!selectedPlan||!selectedOS)return;
-    const premium=document.getElementById('premiumSupport').checked;
-    const base=parseFloat(selectedPlan.price.replace(/[^0-9.]/g,''))||0;
-    fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_type:window.currentType.toUpperCase(),os:`${selectedOS.name} ${selectedOS.versions}`,plan:selectedPlan.plan||'Custom',cpu:selectedPlan.cpu,ram:selectedPlan.ram,disk:selectedPlan.disk,region:selectedPlan.region,datacenter:selectedPlan.datacenter,network:selectedPlan.network,price:`€${(base+(premium?10:0)).toFixed(2)}`,setup_fee:selectedPlan.setup_fee,premium_support:premium})}).then(r=>{
-        if(r.ok){
-            bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
-            loadBalance();
-            loadServices();
-        } else {
-            r.json().then(e=>alert(e.error||'Ошибка'));
-        }
-    });
-}
-
-function openVPNModal(){
-    document.getElementById('vpnCountries').innerHTML=config.vpn_countries.map((c,i)=>`<div class="form-check"><input type="radio" name="vpnCountry" id="vpnC${i}" class="form-check-input" onclick="selectedVPNCountry='${c.name}'" ${c.available?'':'disabled'}><label class="form-check-label selectable ${c.available?'':'text-muted'}" for="vpnC${i}" ${c.available?`onclick="document.getElementById('vpnC${i}').click()"`:''}>${c.name}</label></div>`).join('');
-    document.getElementById('vpnProtocols').innerHTML=config.vpn_protocols.map((p,i)=>`<div class="form-check"><input type="radio" name="vpnProto" id="vpnP${i}" class="form-check-input" onclick="selectedVPNProtocol='${p.name}'"><label class="form-check-label selectable" for="vpnP${i}" onclick="document.getElementById('vpnP${i}').click()">${p.name}</label></div>`).join('');
-    new bootstrap.Modal(document.getElementById('vpnModal')).show();
-}
-
-function submitVPN(){
-    if(!selectedVPNCountry||!selectedVPNProtocol)return;
-    fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_type:'VPN',vpn_country:selectedVPNCountry,vpn_protocol:selectedVPNProtocol,price:'$20'})}).then(r=>{if(r.ok){bootstrap.Modal.getInstance(document.getElementById('vpnModal')).hide();loadBalance();loadServices();}else{r.json().then(e=>alert(e.error||'Ошибка'));}});
-}
-
-function openS3Modal(){
-    document.getElementById('s3Types').innerHTML=`<div class="card selectable mb-2" onclick="selectS3Type(this,'cold')"><div class="card-body"><b>Холодное S3</b><br><small>€0.01/GB</small></div></div><div class="card selectable" onclick="selectS3Type(this,'hot')"><div class="card-body"><b>Горячее S3</b><br><small>€0.10/GB</small></div></div>`;
-    document.getElementById('s3Slider').addEventListener('input',e=>{document.getElementById('s3Size').textContent=e.target.value;updateS3Price();});
-    new bootstrap.Modal(document.getElementById('s3Modal')).show();
-    setTimeout(()=>document.querySelectorAll('#s3Types .selectable')[0].click(),100);
-    updateS3Price();
-}
-
-function selectS3Type(el,type){
-    document.querySelectorAll('#s3Types .selectable').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedS3Type=type;
-    updateS3Price();
-}
-
-function updateS3Price(){
-    const size=parseInt(document.getElementById('s3Slider').value);
-    const price=size*(selectedS3Type==='cold'?0.01:0.10);
-    document.getElementById('s3Price').textContent=`€${price.toFixed(2)}`;
-}
-
-function submitS3(){
-    const size=parseInt(document.getElementById('s3Slider').value);
-    const price=size*(selectedS3Type==='cold'?0.01:0.10);
-    fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_type:'S3',s3_type:selectedS3Type,s3_size:size,price:`€${price.toFixed(2)}`})}).then(r=>{if(r.ok){bootstrap.Modal.getInstance(document.getElementById('s3Modal')).hide();loadBalance();loadServices();}else{r.json().then(e=>alert(e.error||'Ошибка'));}});
-}
-
-function openVDesktopModal(){
-    document.getElementById('vdesktopOS').innerHTML=config.vdesktop_os.map((o,i)=>`<div class="col-4"><div class="card text-center selectable" onclick="selectVDesktopOS(this,${i})"><img src="${o.image}" class="card-img-top" style="height:60px;object-fit:contain"><div class="card-body p-2"><small>${o.name}</small></div></div></div>`).join('');
-    document.getElementById('vdesktopPlans').innerHTML=`<div class="card selectable mb-2" onclick="selectVDesktopPlan(this,false)"><div class="card-body"><b>Всегда запущен</b><br><small>$5/мес</small></div></div><div class="card selectable" onclick="selectVDesktopPlan(this,true)"><div class="card-body"><b>С паузой</b><br><small>$1/мес</small></div></div>`;
-    new bootstrap.Modal(document.getElementById('vdesktopModal')).show();
-}
-
-function selectVDesktopOS(el,i){
-    document.querySelectorAll('#vdesktopOS .selectable').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedVDesktopOS=`${config.vdesktop_os[i].name} ${config.vdesktop_os[i].versions}`;
-}
-
-function selectVDesktopPlan(el,pause){
-    document.querySelectorAll('#vdesktopPlans .selectable').forEach(e=>e.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedVDesktopPause=pause;
-    document.getElementById('vdesktopPrice').textContent=pause?'$1':'$5';
-}
-
-function submitVDesktop(){
-    if(!selectedVDesktopOS||selectedVDesktopPause===null)return;
-    fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_type:'VDesktop',os:selectedVDesktopOS,vdesktop_pause:selectedVDesktopPause,price:selectedVDesktopPause?'$1':'$5'})}).then(r=>{if(r.ok){bootstrap.Modal.getInstance(document.getElementById('vdesktopModal')).hide();loadBalance();loadServices();}else{r.json().then(e=>alert(e.error||'Ошибка'));}});
-}
-
-function openCDNModal(){
-    new bootstrap.Modal(document.getElementById('cdnModal')).show();
-}
-
-document.getElementById('cdnForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    fetch('/api/cdn-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:document.getElementById('cdnFirstName').value,last_name:document.getElementById('cdnLastName').value,phone:document.getElementById('cdnPhone').value,email:document.getElementById('cdnEmail').value,country:document.getElementById('cdnCountry').value,website_url:document.getElementById('cdnUrl').value,description:document.getElementById('cdnDesc').value,monthly_traffic:document.getElementById('cdnTraffic').value,required_speed:document.getElementById('cdnSpeed').value})}).then(()=>{bootstrap.Modal.getInstance(document.getElementById('cdnModal')).hide();alert('Заявка отправлена');});
-});
-
-function loadTickets(){
-    fetch('/api/tickets').then(r=>r.json()).then(tickets=>{
-        const html=tickets.map(t=>`<div class="card mb-2" onclick="openTicket(${t.id},'${t.subject}')"><div class="card-body"><h6>${t.subject}</h6><p class="text-muted small">${t.message.substring(0,100)}...</p></div></div>`).join('');
-        document.getElementById('content').innerHTML=`<div class="glass p-4 text-white"><h3>Поддержка</h3><button class="btn btn-light mb-3" onclick="createTicket()">Создать тикет</button>${html||'<p>Нет тикетов</p>'}</div>`;
-    });
-}
-
-function createTicket(){
-    const subj=prompt('Тема:');
-    const msg=prompt('Сообщение:');
-    if(subj&&msg) fetch('/api/tickets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:subj,message:msg})}).then(loadTickets);
-}
-
-function openTicket(id,subj){
-    currentTicketId=id;
-    document.getElementById('ticketModalTitle').textContent=subj;
-    fetch(`/api/tickets/${id}/messages`).then(r=>r.json()).then(msgs=>{
-        document.getElementById('ticketMessages').innerHTML=msgs.map(m=>`<div class="alert ${m.sender==='admin'?'alert-info':'alert-secondary'}"><b>${m.sender}</b><br>${m.message}<br><small>${new Date(m.created_at).toLocaleString()}</small></div>`).join('');
-    });
-    new bootstrap.Modal(document.getElementById('ticketModal')).show();
-}
-
-document.getElementById('ticketReplyForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const msg=document.getElementById('ticketReply').value;
-    fetch(`/api/tickets/${currentTicketId}/messages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}).then(()=>{document.getElementById('ticketReply').value='';openTicket(currentTicketId,document.getElementById('ticketModalTitle').textContent);});
-});
 </script>
 {% endblock %}
