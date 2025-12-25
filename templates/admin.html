@@ -1,228 +1,629 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container-fluid">
-    <nav class="navbar navbar-dark glass m-3">
-        <div class="container-fluid">
-            <span class="navbar-brand"><i class="fas fa-user-shield"></i> Админ панель</span>
-            <a href="/" class="btn btn-sm btn-outline-light">← Назад</a>
-        </div>
-    </nav>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администратор - Cloud Hosting Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3); }
+        .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+        .btn-ghost:hover { background: rgba(100, 116, 139, 0.2); color: #e2e8f0; }
+        .btn-success { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .btn-success:hover { background: rgba(34, 197, 94, 0.3); }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ff7b7b; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
 
-    <div class="p-3">
-        <div class="glass p-4 mb-3 text-white">
-            <h4>Услуги</h4>
-            <div class="table-responsive">
-                <table class="table table-dark" id="servicesTable">
-                    <thead><tr><th>ID</th><th>Имя</th><th>Владелец</th><th>Тип</th><th>Статус</th><th>Действия</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #94a3b8;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab:hover { color: #e2e8f0; }
+        .tab.active {
+            color: #06b6d4;
+            border-bottom-color: #06b6d4;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            color: #cbd5e1;
+            font-weight: 600;
+            background: rgba(100, 116, 139, 0.05);
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.1);
+        }
+        tr:hover { background: rgba(100, 116, 139, 0.05); }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+        .badge-warning { background: rgba(202, 138, 4, 0.2); color: #fbbf24; }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #ff7b7b; }
+        .badge-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { margin: 0; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        .modal-body { padding: 24px; }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(100, 116, 139, 0.1);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .stat-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #06b6d4; }
+
+        .action-cell { display: flex; gap: 4px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(100, 116, 139, 0.1);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </div>
+            <div>
+                <button class="btn btn-ghost" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выход
+                </button>
             </div>
         </div>
+    </header>
 
-        <div class="glass p-4 mb-3 text-white">
-            <h4>Тикеты</h4>
-            <div id="ticketsDiv"></div>
+    <div class="container">
+        <div class="stats" id="statsContainer"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('services')">
+                <i class="fas fa-server"></i> Услуги
+            </button>
+            <button class="tab" onclick="switchTab('tickets')">
+                <i class="fas fa-headset"></i> Тикеты
+            </button>
+            <button class="tab" onclick="switchTab('users')">
+                <i class="fas fa-users"></i> Пользователи
+            </button>
         </div>
 
-        <div class="glass p-4 text-white">
-            <h4>CDN запросы</h4>
-            <div class="table-responsive">
-                <table class="table table-dark" id="cdnTable">
-                    <thead><tr><th>ID</th><th>Имя</th><th>Email</th><th>Сайт</th><th>Трафик</th><th>Статус</th><th>Действия</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="activateModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Активация</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="activateForm">
-                    <input type="hidden" id="activateId">
-                    <div id="activateFields"></div>
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Активировать</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="ticketTitle">Тикет</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="ticketMessages" class="bg-light p-3 rounded mb-3" style="max-height:400px;overflow-y:auto"></div>
-                <form id="ticketReplyForm">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="ticketReply" placeholder="Ваше сообщение..." required>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-let currentTicketId;
-
-loadData();
-
-function loadData(){
-    fetch('/api/admin/services').then(r=>r.json()).then(services=>{
-        const tbody=document.querySelector('#servicesTable tbody');
-        tbody.innerHTML=services.map(s=>`
-            <tr>
-                <td>${s.id}</td>
-                <td>${s.name}</td>
-                <td>${s.owner_username}</td>
-                <td>${s.service_type}</td>
-                <td><span class="badge status-${s.status}">${getStatus(s.status)}</span></td>
-                <td>
-                    ${s.status==='pending'?`<button class="btn btn-sm btn-success" onclick="openActivate(${s.id},'${s.service_type}')">Активировать</button>`:``}
-                    ${s.status==='expired'||s.status==='expiring_soon'?`<button class="btn btn-sm btn-info" onclick="renewService(${s.id})">Продлить</button>`:``}
-                </td>
-            </tr>
-        `).join('');
-    });
-
-    fetch('/api/admin/tickets').then(r=>r.json()).then(tickets=>{
-        document.getElementById('ticketsDiv').innerHTML=tickets.map(t=>`
-            <div class="card bg-dark mb-2" onclick="openTicket(${t.id},'${t.subject}')">
-                <div class="card-body">
-                    <h6>${t.subject}</h6>
-                    <small>От: ${t.username}</small>
-                    <p class="small text-muted mt-1">${t.message.substring(0,80)}...</p>
+        <!-- Services Tab -->
+        <div id="services" class="tab-content active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2>Управление услугами</h2>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="servicesSearch" placeholder="Поиск..." onkeyup="filterServices()">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Имя</th>
+                                <th>Владелец</th>
+                                <th>Тип</th>
+                                <th>План</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="servicesTable"></tbody>
+                    </table>
                 </div>
             </div>
-        `).join('');
-    });
+        </div>
 
-    fetch('/api/admin/cdn-requests').then(r=>r.json()).then(reqs=>{
-        const tbody=document.querySelector('#cdnTable tbody');
-        tbody.innerHTML=reqs.map(r=>`
-            <tr>
-                <td>${r.id}</td>
-                <td>${r.first_name} ${r.last_name}</td>
-                <td>${r.email}</td>
-                <td>${r.website_url}</td>
-                <td>${r.monthly_traffic}</td>
-                <td><span class="badge ${r.status==='pending'?'bg-warning':'bg-success'}">${r.status}</span></td>
-                <td>
-                    ${r.status==='pending'?`<button class="btn btn-sm btn-success" onclick="activateCDN(${r.id})">Активировать</button>`:''}
-                </td>
-            </tr>
-        `).join('');
-    });
-}
+        <!-- Tickets Tab -->
+        <div id="tickets" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Тикеты поддержки</h2>
+                <div id="ticketsContainer"></div>
+            </div>
+        </div>
 
-function getStatus(s){
-    return {pending:'Активация',active:'Активна',expiring_soon:'Скоро истечет',expired:'Истекла'}[s]||s;
-}
-
-function openActivate(id,type){
-    document.getElementById('activateId').value=id;
-    let fields='';
-    if(type==='VPS'||type==='Dedicated'||type==='DEDICATED'){
-        fields=`<input type="text" class="form-control mb-2" id="actIP" placeholder="IP адрес" required>
-                <input type="text" class="form-control mb-2" id="actLogin" placeholder="Login (root)" value="root" required>
-                <input type="text" class="form-control mb-2" id="actPass" placeholder="Пароль" required>`;
-    } else if(type==='VPN'){
-        fields=`<textarea class="form-control mb-2" id="actVPNKey" placeholder="VPN конфиг/ключ" rows="6" required></textarea>`;
-    } else if(type==='S3'){
-        fields=`<input type="text" class="form-control mb-2" id="actS3Endpoint" placeholder="s3.example.com" required>
-                <input type="text" class="form-control mb-2" id="actS3Access" placeholder="Access Key ID" required>
-                <input type="text" class="form-control mb-2" id="actS3Secret" placeholder="Secret Access Key" required>`;
-    } else if(type==='VDesktop'||type==='VDESKTOP'){
-        fields=`<input type="text" class="form-control mb-2" id="actVDIP" placeholder="IP адрес" required>
-                <input type="text" class="form-control mb-2" id="actLogin" placeholder="Login (root)" value="root" required>
-                <input type="text" class="form-control mb-2" id="actPass" placeholder="Пароль" required>`;
-    }
-    document.getElementById('activateFields').innerHTML=fields;
-    new bootstrap.Modal(document.getElementById('activateModal')).show();
-}
-
-document.getElementById('activateForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const id=document.getElementById('activateId').value;
-    const data={};
-    if(document.getElementById('actIP')){
-        data.ip=document.getElementById('actIP').value;
-        data.login=document.getElementById('actLogin').value;
-        data.password=document.getElementById('actPass').value;
-    }
-    if(document.getElementById('actVPNKey')) data.vpn_key=document.getElementById('actVPNKey').value;
-    if(document.getElementById('actS3Endpoint')){
-        data.s3_endpoint=document.getElementById('actS3Endpoint').value;
-        data.s3_access_key=document.getElementById('actS3Access').value;
-        data.s3_secret_key=document.getElementById('actS3Secret').value;
-    }
-    if(document.getElementById('actVDIP')){
-        data.vdesktop_ip=document.getElementById('actVDIP').value;
-        data.login=document.getElementById('actLogin').value;
-        data.password=document.getElementById('actPass').value;
-    }
-    fetch(`/api/admin/services/${id}/activate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(()=>{
-        bootstrap.Modal.getInstance(document.getElementById('activateModal')).hide();
-        loadData();
-    });
-});
-
-function renewService(id){
-    if(confirm('Продлить на 30 дней?')) fetch(`/api/admin/services/${id}/renew`,{method:'POST'}).then(loadData);
-}
-
-function activateCDN(id){
-    if(confirm('Активировать CDN запрос? Будет создан тикет для связи с клиентом.')){
-        fetch(`/api/admin/cdn-requests/${id}/activate`,{method:'POST'}).then(()=>{
-            alert('CDN активирован, тикет создан');
-            loadData();
-        });
-    }
-}
-
-function openTicket(id,subj){
-    currentTicketId=id;
-    document.getElementById('ticketTitle').textContent=subj;
-    fetch(`/api/admin/tickets/${id}/messages`).then(r=>r.json()).then(msgs=>{
-        document.getElementById('ticketMessages').innerHTML=msgs.map(m=>{
-            const isAdmin=m.sender==='admin';
-            return `
-                <div class="mb-2 ${isAdmin?'text-end':''}">
-                    <div class="d-inline-block p-2 rounded ${isAdmin?'bg-primary text-white':'bg-white'}">
-                        <div class="fw-bold small">${isAdmin?'Администратор':m.sender}</div>
-                        <div>${m.message.replace(/\n/g,'<br>')}</div>
-                        <div class="small opacity-75">${new Date(m.created_at).toLocaleTimeString('ru-RU')}</div>
-                    </div>
+        <!-- Users Tab -->
+        <div id="users" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Пользователи</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Имя</th>
+                                <th>Баланс</th>
+                                <th>Услуг</th>
+                                <th>Дата создания</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
                 </div>
-            `;
-        }).join('');
-        const msgDiv=document.getElementById('ticketMessages');
-        msgDiv.scrollTop=msgDiv.scrollHeight;
-    });
-    new bootstrap.Modal(document.getElementById('ticketModal')).show();
-}
+            </div>
+        </div>
+    </div>
 
-document.getElementById('ticketReplyForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const msg=document.getElementById('ticketReply').value;
-    fetch(`/api/admin/tickets/${currentTicketId}/messages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}).then(()=>{
-        document.getElementById('ticketReply').value='';
-        openTicket(currentTicketId,document.getElementById('ticketTitle').textContent);
-    });
-});
-</script>
-{% endblock %}
+    <!-- Activate Service Modal -->
+    <div id="activateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Активировать услугу</h2>
+                <button class="modal-close" onclick="closeModal('activateModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="activateFields"></div>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="btn btn-ghost" onclick="closeModal('activateModal')" style="flex: 1;">Отмена</button>
+                    <button class="btn btn-success" onclick="submitActivate()" style="flex: 1;">Активировать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="ticketTitle">Тикет</h2>
+                <button class="modal-close" onclick="closeModal('ticketModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ticketMessages" style="background: rgba(100, 116, 139, 0.05); padding: 16px; border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 16px;"></div>
+                <div class="form-group">
+                    <input type="text" id="adminReply" placeholder="Ваше сообщение...">
+                </div>
+                <button class="btn btn-primary" onclick="sendAdminMessage()" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Отправить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:8000/api';
+        const authToken = localStorage.getItem('authToken');
+        let currentTicketId = null;
+
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+
+        function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            return fetch(`${API}${endpoint}`, options).then(r => {
+                if (r.status === 401) {
+                    window.location.href = '/login';
+                }
+                return r.json().catch(() => ({}));
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.closest('.tab').classList.add('active');
+
+            if (tab === 'services') loadServices();
+            else if (tab === 'tickets') loadTickets();
+            else if (tab === 'users') loadUsers();
+        }
+
+        function loadStats() {
+            apiCall('/admin/services').then(services => {
+                const pending = services.filter(s => s.status === 'pending').length;
+                const active = services.filter(s => s.status === 'active').length;
+
+                apiCall('/tickets').then(tickets => {
+                    const openTickets = tickets.filter(t => t.status === 'open').length;
+
+                    document.getElementById('statsContainer').innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-label">📦 Всего услуг</div>
+                            <div class="stat-value">${services.length}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">⏳ На активации</div>
+                            <div class="stat-value">${pending}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">✅ Активных</div>
+                            <div class="stat-value">${active}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">💬 Открытых тикетов</div>
+                            <div class="stat-value">${openTickets}</div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function loadServices() {
+            apiCall('/admin/services').then(services => {
+                document.getElementById('servicesTable').innerHTML = services.map(s => `
+                    <tr>
+                        <td>#${s.id}</td>
+                        <td><strong>${s.name}</strong></td>
+                        <td>${s.owner_username}</td>
+                        <td>${s.service_type}</td>
+                        <td>${s.plan}</td>
+                        <td>
+                            ${s.status === 'pending' ? '<span class="badge badge-warning">⏳ Ожидание</span>' : ''}
+                            ${s.status === 'active' ? '<span class="badge badge-success">✅ Активна</span>' : ''}
+                            ${s.status === 'expired' ? '<span class="badge badge-danger">❌ Истекла</span>' : ''}
+                            ${s.status === 'expiring_soon' ? '<span class="badge badge-warning">⚠️ Скоро истечет</span>' : ''}
+                        </td>
+                        <td>
+                            <div class="action-cell">
+                                ${s.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="openActivateModal(${s.id}, '${s.service_type}')">Активировать</button>` : ''}
+                                ${(s.status === 'expired' || s.status === 'expiring_soon') ? `<button class="btn btn-sm btn-primary" onclick="renewService(${s.id})">Продлить</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+        }
+
+        function filterServices() {
+            const search = document.getElementById('servicesSearch').value.toLowerCase();
+            document.querySelectorAll('#servicesTable tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function openActivateModal(serviceId, type) {
+            document.getElementById('serviceType').value = type;
+            document.getElementById('serviceId').value = serviceId;
+
+            let fields = '';
+            if (type === 'VPS' || type === 'Dedicated') {
+                fields = `
+                    <div class="form-group">
+                        <label>IP адрес</label>
+                        <input type="text" id="actIP" placeholder="192.168.1.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Логин</label>
+                        <input type="text" id="actLogin" placeholder="root" value="root">
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="text" id="actPass" placeholder="Пароль доступа">
+                    </div>
+                `;
+            } else if (type === 'VPN') {
+                fields = `
+                    <div class="form-group">
+                        <label>VPN ключ/конфиг</label>
+                        <textarea id="actVPNKey" rows="6"></textarea>
+                    </div>
+                `;
+            }
+
+            document.getElementById('activateFields').innerHTML = fields;
+            document.getElementById('activateModal').classList.add('active');
+        }
+
+        function submitActivate() {
+            const serviceId = document.getElementById('serviceId').value;
+            const data = {};
+
+            const ipInput = document.getElementById('actIP');
+            if (ipInput) {
+                data.ip = ipInput.value;
+                data.login = document.getElementById('actLogin').value;
+                data.password = document.getElementById('actPass').value;
+            }
+
+            const vpnInput = document.getElementById('actVPNKey');
+            if (vpnInput) {
+                data.vpn_key = vpnInput.value;
+            }
+
+            apiCall(`/admin/services/${serviceId}/activate`, 'POST', data).then(result => {
+                if (result.success) {
+                    alert('Услуга активирована!');
+                    closeModal('activateModal');
+                    loadServices();
+                    loadStats();
+                }
+            });
+        }
+
+        function renewService(serviceId) {
+            if (!confirm('Продлить услугу на 30 дней?')) return;
+            apiCall(`/admin/services/${serviceId}/renew`, 'POST').then(result => {
+                if (result.success) {
+                    alert('Услуга продлена!');
+                    loadServices();
+                }
+            });
+        }
+
+        function loadTickets() {
+            apiCall('/admin/tickets').then(tickets => {
+                document.getElementById('ticketsContainer').innerHTML = tickets.map(t => `
+                    <div class="card" style="margin-bottom: 12px; cursor: pointer;" onclick="openTicket(${t.id}, '${t.subject}')">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="margin-bottom: 4px;">${t.subject}</h3>
+                                <div style="color: #94a3b8; font-size: 12px;">От: <strong>${t.username}</strong></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" style="background: ${t.status === 'open' ? 'rgba(34, 197, 94, 0.2); color: #86efac' : 'rgba(100, 116, 139, 0.2); color: #94a3b8'}">
+                                    ${t.status === 'open' ? '🟢 Открыт' : '🔴 Закрыт'}
+                                </span>
+                                <span class="badge" style="background: ${getPriorityColor(t.priority)}">${t.priority}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'high': 'rgba(239, 68, 68, 0.2); color: #ff7b7b',
+                'medium': 'rgba(202, 138, 4, 0.2); color: #fbbf24',
+                'low': 'rgba(59, 130, 246, 0.2); color: #60a5fa'
+            };
+            return colors[priority] || colors.medium;
+        }
+
+        function openTicket(ticketId, subject) {
+            currentTicketId = ticketId;
+            document.getElementById('ticketTitle').textContent = subject;
+
+            apiCall(`/admin/tickets/${ticketId}/messages`).then(messages => {
+                document.getElementById('ticketMessages').innerHTML = messages.map(m => `
+                    <div style="margin-bottom: 12px;">
+                        <div style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">
+                            <strong>${m.sender === 'admin' ? '👨‍💼 Администратор' : m.sender}</strong>
+                        </div>
+                        <div style="background: rgba(100, 116, 139, 0.1); padding: 8px; border-radius: 6px;">${m.message}</div>
+                    </div>
+                `).join('');
+            });
+
+            document.getElementById('ticketModal').classList.add('active');
+        }
+
+        function sendAdminMessage() {
+            const message = document.getElementById('adminReply').value;
+            if (!message) return;
+
+            apiCall(`/admin/tickets/${currentTicketId}/messages`, 'POST', { message }).then(result => {
+                if (result.success) {
+                    document.getElementById('adminReply').value = '';
+                    openTicket(currentTicketId, document.getElementById('ticketTitle').textContent);
+                }
+            });
+        }
+
+        function loadUsers() {
+            apiCall('/admin/services').then(services => {
+                const usersMap = {};
+                services.forEach(s => {
+                    if (!usersMap[s.owner_id]) {
+                        usersMap[s.owner_id] = { count: 0 };
+                    }
+                    usersMap[s.owner_id].count++;
+                });
+
+                // Fetch actual user data (would need a /admin/users endpoint)
+                document.getElementById('usersTable').innerHTML = Object.entries(usersMap).map(([userId, data], idx) => `
+                    <tr>
+                        <td>#${userId}</td>
+                        <td>User ${userId}</td>
+                        <td>€0.00</td>
+                        <td>${data.count}</td>
+                        <td>-</td>
+                    </tr>
+                `).join('');
+            });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Add hidden input for service ID (needed for activation)
+        document.body.insertAdjacentHTML('beforeend', `
+            <input type="hidden" id="serviceId">
+            <input type="hidden" id="serviceType">
+        `);
+
+        // Initial load
+        loadStats();
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
