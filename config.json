@@ -1,0 +1,1413 @@
+{
+
+  "vps": {
+
+    "promo": [
+
+      {
+
+        "plan": "PROMO-1",
+
+        "cpu": "AMD EPYC 7542 1c/2t",
+
+        "ram": "512MB",
+
+        "disk": "5GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€1.78",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "PROMO-2",
+
+        "cpu": "AMD EPYC 7542 1c/2t",
+
+        "ram": "1GB",
+
+        "disk": "10GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€2.97",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "PROMO-3",
+
+        "cpu": "AMD EPYC 7542 2c/4t",
+
+        "ram": "2GB",
+
+        "disk": "20GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€4.75",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "PROMO-4",
+
+        "cpu": "AMD EPYC 7542 2c/4t",
+
+        "ram": "4GB",
+
+        "disk": "40GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€8.32",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      }
+
+    ],
+
+    "hicpu": [
+
+      {
+
+        "plan": "HICPU-1",
+
+        "cpu": "AMD Ryzen 9900X 1c",
+
+        "ram": "2GB",
+
+        "disk": "30GB NVMe",
+
+        "network": "25Gbit",
+
+        "price": "€5.93",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HICPU-2",
+
+        "cpu": "AMD Ryzen 9900X 2c",
+
+        "ram": "4GB",
+
+        "disk": "60GB NVMe",
+
+        "network": "25Gbit",
+
+        "price": "€11.87",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HICPU-3",
+
+        "cpu": "AMD Ryzen 9900X 4c",
+
+        "ram": "8GB",
+
+        "disk": "120GB NVMe",
+
+        "network": "25Gbit",
+
+        "price": "€23.72",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HICPU-4",
+
+        "cpu": "AMD Ryzen 9900X 8c",
+
+        "ram": "16GB",
+
+        "disk": "240GB NVMe",
+
+        "network": "25Gbit",
+
+        "price": "€47.46",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HICPU-5",
+
+        "cpu": "AMD Ryzen 9900X 16c",
+
+        "ram": "32GB",
+
+        "disk": "480GB NVMe",
+
+        "network": "25Gbit",
+
+        "price": "€94.91",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      }
+
+    ],
+
+    "heavy": [
+
+      {
+
+        "plan": "HEAVY-1",
+
+        "cpu": "AMD Ryzen 9 7950X 8c",
+
+        "ram": "16GB DDR5",
+
+        "disk": "240GB NVMe",
+
+        "network": "10Gbit",
+
+        "price": "€30.00",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HEAVY-2",
+
+        "cpu": "AMD Ryzen 9 7950X 16c",
+
+        "ram": "32GB DDR5",
+
+        "disk": "480GB NVMe",
+
+        "network": "10Gbit",
+
+        "price": "€55.00",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "HEAVY-3",
+
+        "cpu": "AMD Ryzen 9 7950X 32c",
+
+        "ram": "64GB DDR5",
+
+        "disk": "960GB NVMe",
+
+        "network": "10Gbit",
+
+        "price": "€110.00",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮",
+
+        "setup_fee": "€0"
+
+      }
+
+    ],
+
+    "storage": [
+
+      {
+
+        "plan": "STOR-1",
+
+        "cpu": "AMD Ryzen 7 3700X 1c",
+
+        "ram": "2GB",
+
+        "disk": "2TB HDD",
+
+        "network": "800Mbit",
+
+        "price": "€12.60",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "STOR-2",
+
+        "cpu": "AMD Ryzen 7 3700X 2c",
+
+        "ram": "4GB",
+
+        "disk": "4TB HDD",
+
+        "network": "800Mbit",
+
+        "price": "€25.20",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "STOR-3",
+
+        "cpu": "AMD Ryzen 7 3700X 3c",
+
+        "ram": "8GB",
+
+        "disk": "8TB HDD",
+
+        "network": "800Mbit",
+
+        "price": "€50.40",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "STOR-4",
+
+        "cpu": "AMD Ryzen 7 3700X 4c",
+
+        "ram": "12GB",
+
+        "disk": "12TB HDD",
+
+        "network": "800Mbit",
+
+        "price": "€100.80",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      },
+
+      {
+
+        "plan": "STOR-5",
+
+        "cpu": "AMD Ryzen 7 3700X 12c",
+
+        "ram": "16GB",
+
+        "disk": "16TB HDD",
+
+        "network": "800Mbit",
+
+        "price": "€126.00",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪",
+
+        "setup_fee": "€0"
+
+      }
+
+    ]
+
+  },
+
+  "dedicated": {
+
+    "ded_1gbit_germany": [
+
+      {
+
+        "cpu": "Intel i7-6700 4c/8t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "2×512GB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€55",
+
+        "setup_fee": "€5.5",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel i7-7700 4c/8t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€55",
+
+        "setup_fee": "€5.5",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel i7-8700 6c/12t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€60",
+
+        "setup_fee": "€6",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon E3-1275v6 4c/8t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€60",
+
+        "setup_fee": "€6",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 5 3600 6c/12t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€70",
+
+        "setup_fee": "€7",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 5 3600 6c/12t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€80",
+
+        "setup_fee": "€8",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel i5-13500 14c",
+
+        "ram": "64GB DDR4",
+
+        "disk": "2×512GB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€80",
+
+        "setup_fee": "€8",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 3700X 8c/16t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€85",
+
+        "setup_fee": "€8.5",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 3700X 8c/16t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€95",
+
+        "setup_fee": "€9.5",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 PRO 8700 GE 8c",
+
+        "ram": "64GB DDR5",
+
+        "disk": "2×512GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€80",
+
+        "setup_fee": "€8",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 PRO 8700 GE 8c",
+
+        "ram": "128GB DDR5",
+
+        "disk": "2×512GB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€110",
+
+        "setup_fee": "€11",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 7700 8c/16t",
+
+        "ram": "64GB DDR5",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€100",
+
+        "setup_fee": "€10",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 7700 8c/16t",
+
+        "ram": "128GB DDR5",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€130",
+
+        "setup_fee": "€13",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 7 7700 8c/16t",
+
+        "ram": "192GB DDR5",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€150",
+
+        "setup_fee": "€15",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 9 3900 12c/24t",
+
+        "ram": "64GB DDR4",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€100",
+
+        "setup_fee": "€10",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 9 3900 12c/24t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€130",
+
+        "setup_fee": "€13",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 9 5950X 16c/32t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "7.68TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€130",
+
+        "setup_fee": "€13",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 9 7950X 16c/32t",
+
+        "ram": "128GB DDR5",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€145",
+
+        "setup_fee": "€14.5",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel i9-12900K 16c",
+
+        "ram": "128GB DDR5",
+
+        "disk": "4TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€180",
+
+        "setup_fee": "€18",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7502 32c/64t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "1TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€200",
+
+        "setup_fee": "€20",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7502 32c/64t",
+
+        "ram": "256GB DDR4",
+
+        "disk": "1.92TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€220",
+
+        "setup_fee": "€22",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon Gold 5412U 24c/48t",
+
+        "ram": "128GB DDR5",
+
+        "disk": "2×3.84TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€220",
+
+        "setup_fee": "€22",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon Gold 5412U 24c/48t",
+
+        "ram": "256GB DDR5",
+
+        "disk": "2×1.92TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€220",
+
+        "setup_fee": "€22",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7502 32c/64t",
+
+        "ram": "512GB DDR4",
+
+        "disk": "1.92TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€300",
+
+        "setup_fee": "€30",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 9454P 48c/96t",
+
+        "ram": "128GB DDR5",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€300",
+
+        "setup_fee": "€30",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 9454P 48c/96t",
+
+        "ram": "256GB DDR5",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€300",
+
+        "setup_fee": "€30",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon Gold 5412U 24c/48t",
+
+        "ram": "384GB DDR5",
+
+        "disk": "2×1.92TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€350",
+
+        "setup_fee": "€35",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7502 32c/64t",
+
+        "ram": "1024GB DDR4",
+
+        "disk": "3.84TB SSD",
+
+        "network": "1Gbit",
+
+        "price": "€420",
+
+        "setup_fee": "€42",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon Gold 5412U 24c/48t",
+
+        "ram": "512GB DDR5",
+
+        "disk": "3×1.92TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€450",
+
+        "setup_fee": "€45",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 9454P 48c/96t",
+
+        "ram": "512GB DDR5",
+
+        "disk": "2×4TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€600",
+
+        "setup_fee": "€60",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "Intel Xeon Gold 5412U 24c/48t",
+
+        "ram": "768GB DDR5",
+
+        "disk": "4×1.92TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€600",
+
+        "setup_fee": "€60",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 9454P 48c/96t",
+
+        "ram": "1024GB DDR5",
+
+        "disk": "4×4TB NVMe",
+
+        "network": "1Gbit",
+
+        "price": "€1000",
+
+        "setup_fee": "€100",
+
+        "region": "Germany",
+
+        "datacenter": "🇩🇪"
+
+      }
+
+    ],
+
+    "ded_speed_finland": [
+
+      {
+
+        "cpu": "AMD Ryzen 9 5950X 16c/32t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "10Gbit",
+
+        "price": "€907.45",
+
+        "setup_fee": "€90.75",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      },
+
+      {
+
+        "cpu": "2× AMD EPYC 7702P 128c",
+
+        "ram": "1TB DDR4",
+
+        "disk": "2×3.7TB NVMe",
+
+        "network": "10Gbit",
+
+        "price": "€2114.30",
+
+        "setup_fee": "€211.43",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      },
+
+      {
+
+        "cpu": "AMD Ryzen 9 5950X 16c/32t",
+
+        "ram": "128GB DDR4",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "100Gbit",
+
+        "price": "€2342.90",
+
+        "setup_fee": "€234.29",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7502 32c/64t",
+
+        "ram": "256GB DDR4",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "100Gbit",
+
+        "price": "€2496.00",
+
+        "setup_fee": "€249.60",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      },
+
+      {
+
+        "cpu": "AMD EPYC 7702P 64c/128t",
+
+        "ram": "512GB DDR4",
+
+        "disk": "2×2TB NVMe",
+
+        "network": "100Gbit",
+
+        "price": "€2753.82",
+
+        "setup_fee": "€275.38",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      },
+
+      {
+
+        "cpu": "2× AMD EPYC 7702P 128c",
+
+        "ram": "1TB DDR4",
+
+        "disk": "2×3.7TB NVMe",
+
+        "network": "100Gbit",
+
+        "price": "€3565.27",
+
+        "setup_fee": "€356.53",
+
+        "region": "Finland",
+
+        "datacenter": "🇫🇮"
+
+      }
+
+    ]
+
+  },
+
+  "operating_systems": [
+
+    {
+
+      "name": "Ubuntu",
+
+      "versions": "20.04 / 22.04 / 24.04",
+
+      "image": "https://adstatic.netlify.app/ubuntu.png"
+
+    },
+
+    {
+
+      "name": "Debian",
+
+      "versions": "11 / 12",
+
+      "image": "https://adstatic.netlify.app/debian.png"
+
+    },
+
+    {
+
+      "name": "CentOS",
+
+      "versions": "Stream 9",
+
+      "image": "https://adstatic.netlify.app/centos.png"
+
+    },
+
+    {
+
+      "name": "FreeBSD",
+
+      "versions": "13 / 14 + ZFS",
+
+      "image": "https://adstatic.netlify.app/freebsd.png"
+
+    },
+
+    {
+
+      "name": "AlmaLinux",
+
+      "versions": "8 / 9",
+
+      "image": "https://adstatic.netlify.app/alma.png"
+
+    },
+
+    {
+
+      "name": "Astra Linux",
+
+      "versions": "Stable",
+
+      "image": "https://adstatic.netlify.app/astra.png"
+
+    },
+
+    {
+
+      "name": "Windows",
+
+      "versions": "Server 2016 / 2019 / 2022",
+
+      "image": "https://adstatic.netlify.app/windows.png"
+
+    },
+
+    {
+
+      "name": "RouterOS",
+
+      "versions": "MikroTik Latest",
+
+      "image": "https://adstatic.netlify.app/routeros.png"
+
+    },
+
+    {
+
+      "name": "Kali Linux",
+
+      "versions": "Rolling",
+
+      "image": "https://adstatic.netlify.app/kali.png"
+
+    },
+
+    {
+
+      "name": "Parrot OS",
+
+      "versions": "Security Edition",
+
+      "image": "https://adstatic.netlify.app/parrot.png"
+
+    }
+
+  ],
+
+  "vpn_countries": [
+
+    {
+
+      "code": "DE",
+
+      "name": "Германия",
+
+      "available": true
+
+    },
+
+    {
+
+      "code": "US",
+
+      "name": "США",
+
+      "available": false
+
+    },
+
+    {
+
+      "code": "SE",
+
+      "name": "Швеция",
+
+      "available": false
+
+    },
+
+    {
+
+      "code": "FI",
+
+      "name": "Финляндия",
+
+      "available": false
+
+    },
+
+    {
+
+      "code": "EE",
+
+      "name": "Эстония",
+
+      "available": false
+
+    }
+
+  ],
+
+  "vpn_protocols": [
+
+    {
+
+      "name": "VLESS",
+
+      "price": "$20"
+
+    },
+
+    {
+
+      "name": "VMess",
+
+      "price": "$20"
+
+    },
+
+    {
+
+      "name": "Shadowsocks",
+
+      "price": "$20"
+
+    },
+
+    {
+
+      "name": "WireGuard",
+
+      "price": "$20"
+
+    },
+
+    {
+
+      "name": "OpenVPN",
+
+      "price": "$20"
+
+    },
+
+    {
+
+      "name": "L2TP+IPSec",
+
+      "price": "$20"
+
+    }
+
+  ],
+
+  "vdesktop_os": [
+
+    {
+
+      "name": "Debian",
+
+      "versions": "11 / 12",
+
+      "image": "https://adstatic.netlify.app/debian.png"
+
+    },
+
+    {
+
+      "name": "Kali Linux",
+
+      "versions": "Rolling",
+
+      "image": "https://adstatic.netlify.app/kali.png"
+
+    },
+
+    {
+
+      "name": "Parrot OS",
+
+      "versions": "Security Edition",
+
+      "image": "https://adstatic.netlify.app/parrot.png"
+
+    }
+
+  ]
+
+}

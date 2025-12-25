@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <nav class="navbar navbar-dark glass m-3">
+        <div class="container-fluid">
+            <span class="navbar-brand"><i class="fas fa-user-shield"></i> Админ панель</span>
+            <a href="/" class="btn btn-sm btn-outline-light">← Назад</a>
+        </div>
+    </nav>
+
+    <div class="p-3">
+        <div class="glass p-4 mb-3 text-white">
+            <h4>Услуги</h4>
+            <div class="table-responsive">
+                <table class="table table-dark" id="servicesTable">
+                    <thead><tr><th>ID</th><th>Имя</th><th>Владелец</th><th>Тип</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass p-4 mb-3 text-white">
+            <h4>Тикеты</h4>
+            <div id="ticketsDiv"></div>
+        </div>
+
+        <div class="glass p-4 text-white">
+            <h4>CDN запросы</h4>
+            <div class="table-responsive">
+                <table class="table table-dark" id="cdnTable">
+                    <thead><tr><th>ID</th><th>Имя</th><th>Email</th><th>Сайт</th><th>Трафик</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="activateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Активация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="activateForm">
+                    <input type="hidden" id="activateId">
+                    <div id="activateFields"></div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Активировать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="ticketTitle">Тикет</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="ticketMessages" class="bg-light p-3 rounded mb-3" style="max-height:400px;overflow-y:auto"></div>
+                <form id="ticketReplyForm">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="ticketReply" placeholder="Ваше сообщение..." required>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentTicketId;
+
+loadData();
+
+function loadData(){
+    fetch('/api/admin/services').then(r=>r.json()).then(services=>{
+        const tbody=document.querySelector('#servicesTable tbody');
+        tbody.innerHTML=services.map(s=>`
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.name}</td>
+                <td>${s.owner_username}</td>
+                <td>${s.service_type}</td>
+                <td><span class="badge status-${s.status}">${getStatus(s.status)}</span></td>
+                <td>
+                    ${s.status==='pending'?`<button class="btn btn-sm btn-success" onclick="openActivate(${s.id},'${s.service_type}')">Активировать</button>`:``}
+                    ${s.status==='expired'||s.status==='expiring_soon'?`<button class="btn btn-sm btn-info" onclick="renewService(${s.id})">Продлить</button>`:``}
+                </td>
+            </tr>
+        `).join('');
+    });
+
+    fetch('/api/admin/tickets').then(r=>r.json()).then(tickets=>{
+        document.getElementById('ticketsDiv').innerHTML=tickets.map(t=>`
+            <div class="card bg-dark mb-2" onclick="openTicket(${t.id},'${t.subject}')">
+                <div class="card-body">
+                    <h6>${t.subject}</h6>
+                    <small>От: ${t.username}</small>
+                    <p class="small text-muted mt-1">${t.message.substring(0,80)}...</p>
+                </div>
+            </div>
+        `).join('');
+    });
+
+    fetch('/api/admin/cdn-requests').then(r=>r.json()).then(reqs=>{
+        const tbody=document.querySelector('#cdnTable tbody');
+        tbody.innerHTML=reqs.map(r=>`
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.first_name} ${r.last_name}</td>
+                <td>${r.email}</td>
+                <td>${r.website_url}</td>
+                <td>${r.monthly_traffic}</td>
+                <td><span class="badge ${r.status==='pending'?'bg-warning':'bg-success'}">${r.status}</span></td>
+                <td>
+                    ${r.status==='pending'?`<button class="btn btn-sm btn-success" onclick="activateCDN(${r.id})">Активировать</button>`:''}
+                </td>
+            </tr>
+        `).join('');
+    });
+}
+
+function getStatus(s){
+    return {pending:'Активация',active:'Активна',expiring_soon:'Скоро истечет',expired:'Истекла'}[s]||s;
+}
+
+function openActivate(id,type){
+    document.getElementById('activateId').value=id;
+    let fields='';
+    if(type==='VPS'||type==='Dedicated'||type==='DEDICATED'){
+        fields=`<input type="text" class="form-control mb-2" id="actIP" placeholder="IP адрес" required>
+                <input type="text" class="form-control mb-2" id="actLogin" placeholder="Login (root)" value="root" required>
+                <input type="text" class="form-control mb-2" id="actPass" placeholder="Пароль" required>`;
+    } else if(type==='VPN'){
+        fields=`<textarea class="form-control mb-2" id="actVPNKey" placeholder="VPN конфиг/ключ" rows="6" required></textarea>`;
+    } else if(type==='S3'){
+        fields=`<input type="text" class="form-control mb-2" id="actS3Endpoint" placeholder="s3.example.com" required>
+                <input type="text" class="form-control mb-2" id="actS3Access" placeholder="Access Key ID" required>
+                <input type="text" class="form-control mb-2" id="actS3Secret" placeholder="Secret Access Key" required>`;
+    } else if(type==='VDesktop'||type==='VDESKTOP'){
+        fields=`<input type="text" class="form-control mb-2" id="actVDIP" placeholder="IP адрес" required>
+                <input type="text" class="form-control mb-2" id="actLogin" placeholder="Login (root)" value="root" required>
+                <input type="text" class="form-control mb-2" id="actPass" placeholder="Пароль" required>`;
+    }
+    document.getElementById('activateFields').innerHTML=fields;
+    new bootstrap.Modal(document.getElementById('activateModal')).show();
+}
+
+document.getElementById('activateForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=document.getElementById('activateId').value;
+    const data={};
+    if(document.getElementById('actIP')){
+        data.ip=document.getElementById('actIP').value;
+        data.login=document.getElementById('actLogin').value;
+        data.password=document.getElementById('actPass').value;
+    }
+    if(document.getElementById('actVPNKey')) data.vpn_key=document.getElementById('actVPNKey').value;
+    if(document.getElementById('actS3Endpoint')){
+        data.s3_endpoint=document.getElementById('actS3Endpoint').value;
+        data.s3_access_key=document.getElementById('actS3Access').value;
+        data.s3_secret_key=document.getElementById('actS3Secret').value;
+    }
+    if(document.getElementById('actVDIP')){
+        data.vdesktop_ip=document.getElementById('actVDIP').value;
+        data.login=document.getElementById('actLogin').value;
+        data.password=document.getElementById('actPass').value;
+    }
+    fetch(`/api/admin/services/${id}/activate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(()=>{
+        bootstrap.Modal.getInstance(document.getElementById('activateModal')).hide();
+        loadData();
+    });
+});
+
+function renewService(id){
+    if(confirm('Продлить на 30 дней?')) fetch(`/api/admin/services/${id}/renew`,{method:'POST'}).then(loadData);
+}
+
+function activateCDN(id){
+    if(confirm('Активировать CDN запрос? Будет создан тикет для связи с клиентом.')){
+        fetch(`/api/admin/cdn-requests/${id}/activate`,{method:'POST'}).then(()=>{
+            alert('CDN активирован, тикет создан');
+            loadData();
+        });
+    }
+}
+
+function openTicket(id,subj){
+    currentTicketId=id;
+    document.getElementById('ticketTitle').textContent=subj;
+    fetch(`/api/admin/tickets/${id}/messages`).then(r=>r.json()).then(msgs=>{
+        document.getElementById('ticketMessages').innerHTML=msgs.map(m=>{
+            const isAdmin=m.sender==='admin';
+            return `
+                <div class="mb-2 ${isAdmin?'text-end':''}">
+                    <div class="d-inline-block p-2 rounded ${isAdmin?'bg-primary text-white':'bg-white'}">
+                        <div class="fw-bold small">${isAdmin?'Администратор':m.sender}</div>
+                        <div>${m.message.replace(/\n/g,'<br>')}</div>
+                        <div class="small opacity-75">${new Date(m.created_at).toLocaleTimeString('ru-RU')}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        const msgDiv=document.getElementById('ticketMessages');
+        msgDiv.scrollTop=msgDiv.scrollHeight;
+    });
+    new bootstrap.Modal(document.getElementById('ticketModal')).show();
+}
+
+document.getElementById('ticketReplyForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const msg=document.getElementById('ticketReply').value;
+    fetch(`/api/admin/tickets/${currentTicketId}/messages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}).then(()=>{
+        document.getElementById('ticketReply').value='';
+        openTicket(currentTicketId,document.getElementById('ticketTitle').textContent);
+    });
+});
+</script>
+{% endblock %}

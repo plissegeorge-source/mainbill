@@ -1,0 +1,254 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "$2b$12$YCpDHg0R4uNuYopMYfjqruHquBtludQybOkp7Bzu4SlbPk52/WnyO",
+      "is_admin": true
+    },
+    {
+      "id": 2,
+      "username": "testuser",
+      "password": "$2b$12$xUPw53hLlkYbvS23A6un6.qxkWs.87p7XpPn81u2eYK0z6HZFhFGa",
+      "is_admin": false
+    },
+    {
+      "id": 3,
+      "username": "eblan",
+      "password": "$2b$12$lUV6d6bs0kyl6WzIyxBeP.4KfCg4DeMIJVLvMZ3xBVILsx0gSlIIW",
+      "is_admin": false,
+      "balance": 3.2200000000000006
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "name": "еблан",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:04:55.370803",
+      "service_type": "VPS",
+      "os": "Debian 11 / 12",
+      "plan": "PROMO-1",
+      "cpu": "AMD EPYC 7542 1c/2t",
+      "ram": "512MB",
+      "disk": "5GB NVMe",
+      "region": "Germany",
+      "datacenter": "🇩🇪",
+      "network": "1Gbit",
+      "price": "€11.78",
+      "setup_fee": "€0",
+      "premium_support": true,
+      "ip": "228.228.228.228",
+      "login": "root",
+      "password": "gergergergerg",
+      "expires_at": "2025-12-20T14:07:16.938529"
+    },
+    {
+      "id": 2,
+      "name": "quantum-phoenix",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:05:07.618179",
+      "service_type": "DEDICATED",
+      "os": "CentOS Stream 9",
+      "plan": "Custom",
+      "cpu": "Intel i7-6700 4c/8t",
+      "ram": "64GB DDR4",
+      "disk": "2×512GB SSD",
+      "region": "Germany",
+      "datacenter": "🇩🇪",
+      "network": "1Gbit",
+      "price": "€65.00",
+      "setup_fee": "€5.5",
+      "premium_support": true,
+      "expires_at": "2025-12-20T14:08:13.465204"
+    },
+    {
+      "id": 3,
+      "name": "radiant-phoenix",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:05:21.347086",
+      "service_type": "VPN",
+      "vpn_country": "Германия",
+      "vpn_protocol": "VLESS",
+      "price": "$20",
+      "vpn_key": "ewqeqeqw",
+      "expires_at": "2025-12-20T14:08:10.450200"
+    },
+    {
+      "id": 4,
+      "name": "crimson-lion",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:06:11.300173",
+      "service_type": "VDesktop",
+      "os": "Kali Linux Rolling",
+      "vdesktop_pause": false,
+      "price": "$5",
+      "vdesktop_ip": "qweqweqw",
+      "login": "qweqeq",
+      "password": "weqweqw",
+      "expires_at": "2025-12-20T14:08:06.946225"
+    },
+    {
+      "id": 5,
+      "name": "mystic-leopard",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:06:22.883572",
+      "service_type": "S3",
+      "s3_type": "cold",
+      "s3_size": 10000,
+      "price": "€100.00",
+      "s3_endpoint": "mne pohuy",
+      "s3_access_key": "eee",
+      "s3_secret_key": "eee",
+      "expires_at": "2025-12-20T14:07:58.402122"
+    },
+    {
+      "id": 6,
+      "name": "royal-eagle",
+      "owner_id": 3,
+      "status": "expired",
+      "created_at": "2025-11-20T14:26:23.725813",
+      "service_type": "DEDICATED",
+      "os": "Debian 11 / 12",
+      "plan": "Custom",
+      "cpu": "Intel i7-6700 4c/8t",
+      "ram": "64GB DDR4",
+      "disk": "2×512GB SSD",
+      "region": "Germany",
+      "datacenter": "🇩🇪",
+      "network": "1Gbit",
+      "price": "€55.00",
+      "setup_fee": "€5.5",
+      "premium_support": false,
+      "expires_at": "2025-12-20T14:26:35.475427"
+    },
+    {
+      "id": 7,
+      "name": "mystic-lion",
+      "owner_id": 3,
+      "status": "pending",
+      "created_at": "2025-11-27T09:54:29.713046",
+      "service_type": "VPS",
+      "os": "Debian 11 / 12",
+      "plan": "HEAVY-1",
+      "cpu": "AMD Ryzen 9 7950X 8c",
+      "ram": "16GB DDR5",
+      "disk": "240GB NVMe",
+      "region": "Finland",
+      "datacenter": "🇫🇮",
+      "network": "10Gbit",
+      "price": "€30.00",
+      "setup_fee": "€0",
+      "premium_support": false
+    },
+    {
+      "id": 8,
+      "name": "crimson-panther",
+      "owner_id": 3,
+      "status": "pending",
+      "created_at": "2025-11-27T09:54:45.358146",
+      "service_type": "DEDICATED",
+      "os": "AlmaLinux 8 / 9",
+      "plan": "Custom",
+      "cpu": "Intel i7-7700 4c/8t",
+      "ram": "64GB DDR4",
+      "disk": "1TB SSD",
+      "region": "Germany",
+      "datacenter": "🇩🇪",
+      "network": "1Gbit",
+      "price": "€55.00",
+      "setup_fee": "€5.5",
+      "premium_support": false
+    },
+    {
+      "id": 9,
+      "name": "noble-bear",
+      "owner_id": 3,
+      "status": "pending",
+      "created_at": "2025-12-05T10:07:20.440585",
+      "service_type": "VPS",
+      "os": "Astra Linux Stable",
+      "plan": "PROMO-1",
+      "cpu": "AMD EPYC 7542 1c/2t",
+      "ram": "512MB",
+      "disk": "5GB NVMe",
+      "region": "Germany",
+      "datacenter": "🇩🇪",
+      "network": "1Gbit",
+      "price": "€11.78",
+      "setup_fee": "€0",
+      "premium_support": true
+    }
+  ],
+  "tickets": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "subject": "йоу бро",
+      "message": "еблан?",
+      "status": "open",
+      "created_at": "2025-11-20T14:06:33.203442"
+    }
+  ],
+  "ticket_messages": [
+    {
+      "id": 1,
+      "ticket_id": 1,
+      "sender": "eblan",
+      "message": "да\n",
+      "created_at": "2025-11-20T14:27:57.109195"
+    },
+    {
+      "id": 2,
+      "ticket_id": 1,
+      "sender": "eblan",
+      "message": "да бро\n",
+      "created_at": "2025-12-25T12:04:43.477283"
+    }
+  ],
+  "cdn_requests": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "status": "pending",
+      "created_at": "2025-11-20T14:06:00.580291",
+      "first_name": "хуй",
+      "last_name": "а",
+      "phone": "а",
+      "email": "eblan@gno.com",
+      "country": "а",
+      "website_url": "https://ergeerrerge.com",
+      "description": "а",
+      "monthly_traffic": "а",
+      "required_speed": "а"
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "amount": -30.0,
+      "description": "Order VPS",
+      "created_at": "2025-11-27T09:54:29.713029"
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "amount": -55.0,
+      "description": "Order DEDICATED",
+      "created_at": "2025-11-27T09:54:45.358131"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "amount": -11.78,
+      "description": "Order VPS",
+      "created_at": "2025-12-05T10:07:20.440567"
+    }
+  ]
+}
