@@ -105,7 +105,7 @@ function loadData(){
                 <div class="card-body">
                     <h6>${t.subject}</h6>
                     <small>От: ${t.username}</small>
-                    <p class="small text-muted mt-1">${t.message.substring(0,80)}...</p>
+                    <p class="small text-muted mt-1">${(t.last_message||'').substring(0,80)}...</p>
                 </div>
             </div>
         `).join('');
