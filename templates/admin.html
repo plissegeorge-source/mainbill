@@ -261,7 +261,6 @@ function openActivate(id, type) {
 
         if (res.ok) {
             modal.hide();
-            showToast('Успех', 'Услуга активирована', 'success');
             loadData();
         }
     };
@@ -272,7 +271,6 @@ async function renewService(id) {
 
     const res = await fetch(`/api/admin/services/${id}/renew`, { method: 'POST' });
     if (res.ok) {
-        showToast('Успех', 'Услуга продлена', 'success');
         loadData();
     }
 }
@@ -350,7 +348,6 @@ async function activateCDN(id) {
 
     const res = await fetch(`/api/admin/cdn-requests/${id}/activate`, { method: 'POST' });
     if (res.ok) {
-        showToast('Успех', 'CDN активирован, тикет создан', 'success');
         loadData();
     }
 }
